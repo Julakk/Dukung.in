@@ -11,9 +11,40 @@ const { data, save } = require('./db');
 
 const app = express();
 app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  next();
+});
+
+const hits = new Map();
+function limiter(name, max, windowMs, countGet) {
+  return (req, res, next) => {
+    if (!countGet && (req.method === 'GET' || req.method === 'HEAD')) return next();
+    const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
+    const k = name + ':' + ip;
+    const now = Date.now();
+    let h = hits.get(k);
+    if (!h || h.reset < now) { h = { n: 0, reset: now + windowMs }; hits.set(k, h); }
+    h.n++;
+    if (h.n > max) return res.status(429).json({ error: 'Terlalu banyak percobaan, coba lagi nanti' });
+    next();
+  };
+}
+setInterval(() => { const now = Date.now(); for (const [k, h] of hits) if (h.reset < now) hits.delete(k); }, 60000).unref();
+app.use('/api/login', limiter('login', 10, 15 * 60000));
+app.use('/api/register', limiter('register', 5, 60 * 60000));
+app.use('/api/password', limiter('password', 10, 60 * 60000));
+app.use('/api/reset', limiter('reset', 10, 60 * 60000));
+app.use('/api/withdraw', limiter('withdraw', 10, 60 * 60000));
+app.use('/api/creator', limiter('support', 30, 10 * 60000));
+app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -28,11 +59,14 @@ function verify(pw, stored) {
 function newSession(userId) {
   const t = crypto.randomBytes(24).toString('hex');
   data.sessions[t] = userId;
+  data.sessionExp = data.sessionExp || {};
+  data.sessionExp[t] = Date.now() + 30 * 86400000;
   save();
   return t;
 }
 function auth(req, res, next) {
   const t = (req.headers.authorization || '').replace('Bearer ', '');
+  if (data.sessionExp && data.sessionExp[t] && data.sessionExp[t] < Date.now()) { delete data.sessions[t]; delete data.sessionExp[t]; }
   const user = data.users.find(u => u.id === data.sessions[t]);
   if (!user) return res.status(401).json({ error: 'Belum login' });
   req.user = user;
@@ -292,6 +326,68 @@ app.post('/api/admin/withdrawals/:id', adminAuth, (req, res) => {
 });
 
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
+data.resets = data.resets || {};
+
+app.post('/api/password', auth, (req, res) => {
+  const oldPw = String(req.body.old || '');
+  const np = String(req.body.new || '');
+  if (!verify(oldPw, req.user.password)) return res.status(400).json({ error: 'Password lama salah' });
+  if (np.length < 6) return res.status(400).json({ error: 'Password baru minimal 6 karakter' });
+  req.user.password = hash(np);
+  for (const t of Object.keys(data.sessions)) if (data.sessions[t] === req.user.id && t !== req.token) delete data.sessions[t];
+  save();
+  res.json({ ok: true });
+});
+
+app.post('/api/admin/reset', adminAuth, (req, res) => {
+  const u = data.users.find(x => x.username === String(req.body.username || '').toLowerCase());
+  if (!u) return res.status(404).json({ error: 'Username tidak ditemukan' });
+  const t = crypto.randomBytes(24).toString('hex');
+  data.resets[t] = { userId: u.id, exp: Date.now() + 3600000 };
+  save();
+  res.json({ url: BASE_URL + '/reset/' + t });
+});
+
+app.post('/api/reset', (req, res) => {
+  const token = String(req.body.token || '');
+  const r = data.resets[token];
+  if (!r || r.exp < Date.now()) return res.status(400).json({ error: 'Link tidak valid atau kedaluwarsa' });
+  const np = String(req.body.password || '');
+  if (np.length < 6) return res.status(400).json({ error: 'Password minimal 6 karakter' });
+  const u = data.users.find(x => x.id === r.userId);
+  if (!u) return res.status(400).json({ error: 'Akun tidak ditemukan' });
+  u.password = hash(np);
+  for (const t of Object.keys(data.sessions)) if (data.sessions[t] === u.id) delete data.sessions[t];
+  delete data.resets[token];
+  save();
+  res.json({ ok: true });
+});
+
+app.get('/reset/:token', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset.html')));
+
+const fsx = require('fs');
+const BK_DIR = path.join(__dirname, 'backups');
+function backup() {
+  try {
+    const src = path.join(__dirname, 'data.json');
+    if (!fsx.existsSync(src)) return;
+    fsx.mkdirSync(BK_DIR, { recursive: true });
+    fsx.copyFileSync(src, path.join(BK_DIR, 'data-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json'));
+    const all = fsx.readdirSync(BK_DIR).filter(x => x.startsWith('data-')).sort();
+    all.slice(0, Math.max(0, all.length - 30)).forEach(x => fsx.unlinkSync(path.join(BK_DIR, x)));
+  } catch (e) { console.log('Backup gagal:', e.message); }
+}
+backup();
+setInterval(backup, 6 * 3600000).unref();
+
+setInterval(() => {
+  const now = Date.now();
+  const ex = data.sessionExp || {};
+  for (const t of Object.keys(ex)) if (ex[t] < now) { delete data.sessions[t]; delete ex[t]; }
+  for (const t of Object.keys(data.resets)) if (data.resets[t].exp < now) delete data.resets[t];
+  save();
+}, 3600000).unref();
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

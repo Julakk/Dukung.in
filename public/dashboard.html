@@ -36,6 +36,13 @@
     <div id="wlist" style="margin-top:12px"></div>
   </div>
   <div class="card">
+    <h2>Ganti password</h2>
+    <input id="pold" type="password" placeholder="Password lama" autocomplete="current-password">
+    <input id="pnew" type="password" placeholder="Password baru (min. 6)" autocomplete="new-password">
+    <div id="perr" class="err"></div>
+    <button id="pgo">Ganti password</button>
+  </div>
+  <div class="card">
     <h2>Profil</h2>
     <input id="dn" placeholder="Nama tampilan">
     <textarea id="bio" rows="3" placeholder="Bio singkat"></textarea>
@@ -125,6 +132,13 @@ $('#wgo').onclick = async () => {
   $('#werr').className = r.ok ? 'ok' : 'err';
   $('#werr').textContent = r.ok ? 'Permintaan terkirim' : j.error;
   if (r.ok) { $('#wamt').value = ''; load(); }
+};
+$('#pgo').onclick = async () => {
+  const r = await fetch('/api/password', { method: 'POST', headers: H, body: JSON.stringify({ old: $('#pold').value, new: $('#pnew').value }) });
+  const j = await r.json();
+  $('#perr').className = r.ok ? 'ok' : 'err';
+  $('#perr').textContent = r.ok ? 'Password diganti' : j.error;
+  if (r.ok) { $('#pold').value = ''; $('#pnew').value = ''; }
 };
 setInterval(load, 15000);
 </script>

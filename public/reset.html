@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reset password - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Reset password</h1>
+  <div class="card">
+    <input id="p" type="password" placeholder="Password baru (min. 6)" autocomplete="new-password">
+    <div class="err" id="err"></div>
+    <button id="go">Simpan password</button>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+$('#go').onclick = async () => {
+  const token = location.pathname.split('/').pop();
+  const r = await fetch('/api/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password: $('#p').value }) });
+  const j = await r.json();
+  if (!r.ok) { $('#err').className = 'err'; $('#err').textContent = j.error; return; }
+  $('#err').className = 'ok';
+  $('#err').textContent = 'Berhasil. Mengalihkan ke halaman masuk...';
+  localStorage.removeItem('token');
+  setTimeout(() => location.href = '/', 1500);
+};
+</script>
+</body>
+</html>

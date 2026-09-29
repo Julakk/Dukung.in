@@ -10,6 +10,12 @@
 <div class="wrap">
   <h1>Admin</h1>
   <div class="err" id="err"></div>
+  <div class="card">
+    <h2>Reset password kreator</h2>
+    <input id="ru" placeholder="Username kreator">
+    <button id="rgo">Buat link reset</button>
+    <p class="mut" id="rout" style="word-break:break-all"></p>
+  </div>
   <div id="list"></div>
   <button class="ghost" id="rk">Ganti kunci admin</button>
 </div>
@@ -64,6 +70,11 @@ async function load() {
     box.append(c);
   });
 }
+$('#rgo').onclick = async () => {
+  const r = await api('/api/admin/reset', 'POST', { username: $('#ru').value.trim() });
+  if (!r) return;
+  $('#rout').textContent = r.ok ? r.j.url + ' (berlaku 1 jam)' : r.j.error;
+};
 $('#rk').onclick = () => { sessionStorage.removeItem('adminKey'); load(); };
 load();
 </script>

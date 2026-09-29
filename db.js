@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const FILE = path.join(__dirname, 'data.json');
 let data = { users: [], donations: [], sessions: {} };
-try { data = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) {}
+if (fs.existsSync(FILE)) {
+  try {
+    data = JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  } catch (e) {
+    console.error('data.json rusak. Server berhenti supaya data tidak tertimpa. Pulihkan dari folder backups/.');
+    process.exit(1);
+  }
+}
 function save() {
   fs.writeFileSync(FILE + '.tmp', JSON.stringify(data, null, 2));
   fs.renameSync(FILE + '.tmp', FILE);
