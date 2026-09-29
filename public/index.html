@@ -3,23 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b1f4b">
 <title>Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>Dukung<span style="color:var(--ac)">.in</span></h1>
-  <p class="mut">Platform dukungan untuk kreator Indonesia.</p>
-  <div class="card">
-    <form id="f">
-      <input id="u" placeholder="Username" autocomplete="username" required>
-      <input id="dn" placeholder="Nama tampilan" style="display:none">
-      <input id="p" type="password" placeholder="Password" autocomplete="current-password" required>
-      <div class="err" id="err"></div>
-      <button id="btn" type="submit">Masuk</button>
-    </form>
-    <div class="link" id="sw"></div>
-  </div>
+<div class="top"><div class="in">
+  <h1>Dukung.in</h1>
+  <p class="lead">Terima dukungan dari penontonmu. Langsung masuk ke saldo.</p>
+</div></div>
+<div class="sheet">
+  <div class="seg"><button type="button" data-m="login" class="on">Masuk</button><button type="button" data-m="register">Daftar</button></div>
+  <form id="f">
+    <label class="f" for="u">Username</label>
+    <input id="u" autocomplete="username" autocapitalize="none" required>
+    <div id="dnw" style="display:none">
+      <label class="f" for="dn">Nama tampilan</label>
+      <input id="dn" placeholder="Nama yang dilihat pendukungmu">
+    </div>
+    <label class="f" for="p">Password</label>
+    <input id="p" type="password" autocomplete="current-password" required>
+    <div class="err" id="err"></div>
+    <button class="cta" id="btn" type="submit">Masuk</button>
+  </form>
 </div>
 <script>
 const $ = s => document.querySelector(s);
@@ -27,22 +33,24 @@ let mode = 'login';
 if (localStorage.token) location.href = '/dashboard';
 function setMode(m) {
   mode = m;
-  $('#dn').style.display = m === 'register' ? 'block' : 'none';
-  $('#btn').textContent = m === 'register' ? 'Daftar' : 'Masuk';
-  $('#sw').textContent = m === 'register' ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar';
+  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('#dnw').style.display = m === 'register' ? 'block' : 'none';
+  $('#btn').textContent = m === 'register' ? 'Buat akun' : 'Masuk';
+  $('#p').autocomplete = m === 'register' ? 'new-password' : 'current-password';
   $('#err').textContent = '';
 }
-$('#sw').onclick = () => setMode(mode === 'login' ? 'register' : 'login');
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
 $('#f').onsubmit = async e => {
   e.preventDefault();
+  $('#btn').disabled = true;
   const body = { username: $('#u').value.trim(), password: $('#p').value, displayName: $('#dn').value.trim() };
   const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const j = await r.json();
+  $('#btn').disabled = false;
   if (!r.ok) { $('#err').textContent = j.error; return; }
   localStorage.token = j.token;
   location.href = '/dashboard';
 };
-setMode('login');
 </script>
 </body>
 </html>

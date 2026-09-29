@@ -3,25 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b1f4b">
 <title>Admin - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>Admin</h1>
+<div class="top"><div class="in">
+  <h1>Penarikan dana</h1>
+  <p class="lead" id="sum">Memuat...</p>
+</div></div>
+<div class="sheet">
   <div class="err" id="err"></div>
+  <div class="seg" id="seg">
+    <button data-f="pending" class="on">Menunggu</button>
+    <button data-f="done">Selesai</button>
+    <button data-f="all">Semua</button>
+  </div>
+  <div id="list" style="margin-top:12px"></div>
   <div class="card">
-    <h2>Reset password kreator</h2>
-    <input id="ru" placeholder="Username kreator">
-    <button id="rgo">Buat link reset</button>
+    <h2>Bantuan akun</h2>
+    <p class="mut">Buat link reset password untuk kreator yang lupa password. Link berlaku 1 jam.</p>
+    <label class="f" for="ru">Username kreator</label>
+    <input id="ru" autocapitalize="none">
+    <button class="ghost" id="rgo">Buat link reset</button>
     <p class="mut" id="rout" style="word-break:break-all"></p>
   </div>
-  <div id="list"></div>
-  <button class="ghost" id="rk">Ganti kunci admin</button>
+  <button class="ghost" id="rk">Masukkan ulang kunci admin</button>
 </div>
 <script>
 const $ = s => document.querySelector(s);
 const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+const fmt = ts => new Date(ts).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+let all = [], filter = 'pending';
 function key() {
   let k = sessionStorage.adminKey;
   if (!k) { k = prompt('Kunci admin'); if (k) sessionStorage.adminKey = k; }
@@ -30,50 +44,66 @@ function key() {
 async function api(url, method, body) {
   const r = await fetch(url, { method: method || 'GET', headers: { 'x-admin-key': key(), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const j = await r.json();
-  if (r.status === 401) { sessionStorage.removeItem('adminKey'); $('#err').textContent = j.error; return null; }
+  if (r.status === 401) { sessionStorage.removeItem('adminKey'); $('#err').textContent = j.error + '. Ketuk "Masukkan ulang kunci admin" di bawah.'; return null; }
   return { ok: r.ok, j };
 }
 async function act(id, action) {
   let note = '';
-  if (action === 'reject') note = prompt('Alasan penolakan (opsional)') || '';
+  if (action === 'reject') note = prompt('Alasan penolakan (boleh kosong)') || '';
   else if (!confirm('Tandai sudah ditransfer?')) return;
   const r = await api('/api/admin/withdrawals/' + id, 'POST', { action, note });
   if (r && !r.ok) $('#err').textContent = r.j.error;
   load();
 }
-async function load() {
-  const r = await api('/api/admin/withdrawals');
-  if (!r) return;
-  $('#err').textContent = '';
+const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
+function render() {
+  const pend = all.filter(w => w.status === 'pending');
+  $('#sum').textContent = pend.length ? pend.length + ' permintaan menunggu, total ' + rp(pend.reduce((s, w) => s + w.amount, 0)) : 'Tidak ada permintaan yang menunggu.';
+  const list = all.filter(w => filter === 'all' || (filter === 'pending' ? w.status === 'pending' : w.status !== 'pending'));
   const box = $('#list');
   box.innerHTML = '';
-  if (!r.j.length) box.innerHTML = '<div class="mut">Belum ada permintaan.</div>';
-  r.j.forEach(w => {
-    const c = document.createElement('div');
-    c.className = 'card';
-    const t = document.createElement('b');
-    t.textContent = rp(w.amount) + ' • @' + w.username + ' • ' + w.status;
-    const p = document.createElement('p');
-    p.className = 'mut';
-    p.textContent = w.payout.bank + ' ' + w.payout.account + ' a.n. ' + w.payout.holder + ' • ' + new Date(w.createdAt).toLocaleString('id-ID');
-    c.append(t, p);
+  if (!list.length) box.append(el('div', 'empty', 'Tidak ada data di filter ini.'));
+  list.forEach(w => {
+    const c = el('div', 'card');
+    const r1 = el('div', 'row');
+    r1.append(el('b', '', '@' + w.username), el('span', 'amt', rp(w.amount)));
+    c.append(r1, el('div', '', w.payout.bank + ' ' + w.payout.account), el('div', 'mut', 'a.n. ' + w.payout.holder), el('div', 'mut', fmt(w.createdAt)));
     if (w.status === 'pending') {
-      const a = document.createElement('button');
-      a.textContent = 'Sudah ditransfer';
-      a.onclick = () => act(w.id, 'paid');
-      const b = document.createElement('button');
-      b.className = 'ghost';
-      b.textContent = 'Tolak';
-      b.onclick = () => act(w.id, 'reject');
-      c.append(a, b);
+      const a = el('div', 'acts');
+      const cp = el('button', 'ghost wide', 'Salin nomor rekening');
+      cp.onclick = () => navigator.clipboard.writeText(w.payout.account).then(() => { cp.textContent = 'Tersalin'; setTimeout(() => cp.textContent = 'Salin nomor rekening', 1500); });
+      const ok = el('button', 'cta', 'Sudah ditransfer');
+      ok.onclick = () => act(w.id, 'paid');
+      const no = el('button', 'ghost', 'Tolak');
+      no.onclick = () => act(w.id, 'reject');
+      a.append(cp, ok, no);
+      c.append(a);
+    } else {
+      const p = el('div', '', '');
+      p.style.marginTop = '10px';
+      p.append(el('span', 'pill ' + w.status, lbl[w.status] || w.status));
+      if (w.note) p.append(el('span', 'mut', '  ' + w.note));
+      c.append(p);
     }
     box.append(c);
   });
 }
+async function load() {
+  const r = await api('/api/admin/withdrawals');
+  if (!r) return;
+  $('#err').textContent = '';
+  all = r.j;
+  render();
+}
+document.querySelectorAll('#seg button').forEach(b => b.onclick = () => {
+  filter = b.dataset.f;
+  document.querySelectorAll('#seg button').forEach(x => x.classList.toggle('on', x === b));
+  render();
+});
 $('#rgo').onclick = async () => {
   const r = await api('/api/admin/reset', 'POST', { username: $('#ru').value.trim() });
   if (!r) return;
-  $('#rout').textContent = r.ok ? r.j.url + ' (berlaku 1 jam)' : r.j.error;
+  $('#rout').textContent = r.ok ? r.j.url : r.j.error;
 };
 $('#rk').onclick = () => { sessionStorage.removeItem('adminKey'); load(); };
 load();

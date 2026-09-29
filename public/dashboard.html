@@ -2,117 +2,174 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f4b">
 <title>Dashboard - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1>Dashboard</h1>
-  <div class="card">
-    <div class="mut">Link dukunganmu</div>
-    <a id="link" style="color:var(--ac);word-break:break-all" target="_blank"></a>
-  </div>
-  <div class="card">
-    <div class="mut">Saldo tersedia</div>
-    <div class="big" id="total">Rp0</div>
-  </div>
-  <div class="card">
-    <h2>Overlay OBS</h2>
-    <div class="mut">Tempel di OBS sebagai Browser Source. Jangan dibagikan.</div>
-    <a id="ov" style="color:var(--ac);word-break:break-all" target="_blank"></a>
-    <button class="ghost" id="cp">Salin link</button>
-  </div>
-  <div class="card">
-    <h2>Penarikan dana</h2>
-    <div class="mut" id="wnote"></div>
-    <input id="wbank" placeholder="Bank / e-wallet (mis. BCA, DANA)">
-    <input id="wacc" placeholder="Nomor rekening / HP">
-    <input id="whold" placeholder="Nama pemilik rekening">
-    <button class="ghost" id="wsave">Simpan rekening</button>
-    <input id="wamt" type="text" inputmode="numeric" placeholder="Jumlah penarikan" style="margin-top:14px">
-    <div id="werr" class="err"></div>
-    <button id="wgo">Tarik dana</button>
-    <div id="wlist" style="margin-top:12px"></div>
-  </div>
-  <div class="card">
-    <h2>Ganti password</h2>
-    <input id="pold" type="password" placeholder="Password lama" autocomplete="current-password">
-    <input id="pnew" type="password" placeholder="Password baru (min. 6)" autocomplete="new-password">
-    <div id="perr" class="err"></div>
-    <button id="pgo">Ganti password</button>
-  </div>
-  <div class="card">
-    <h2>Profil</h2>
-    <input id="dn" placeholder="Nama tampilan">
-    <textarea id="bio" rows="3" placeholder="Bio singkat"></textarea>
-    <div class="ok" id="msg"></div>
-    <button id="save">Simpan</button>
-  </div>
-  <div class="card">
-    <h2>Dukungan masuk</h2>
-    <div id="list"></div>
-  </div>
-  <button class="ghost" id="out">Keluar</button>
+<div class="top"><div class="in">
+  <div class="sub">Halo, <span id="hi"></span></div>
+  <div class="sub" style="margin-top:14px">Saldo tersedia</div>
+  <div class="bal" id="total">Rp0</div>
+</div></div>
+<div class="sheet">
+  <section class="pane on" id="p-dukungan">
+    <div class="card">
+      <h2>Link dukunganmu</h2>
+      <a id="link" target="_blank"></a>
+      <div style="margin-top:12px"><button class="sm cta" id="cpl">Salin link</button></div>
+    </div>
+    <div class="card"><h2>Dukungan masuk</h2><div id="list"></div></div>
+  </section>
+
+  <section class="pane" id="p-dompet">
+    <div class="card">
+      <h2>Tarik dana</h2>
+      <p class="mut" id="wnote"></p>
+      <label class="f" for="wamt">Jumlah penarikan</label>
+      <input id="wamt" type="text" inputmode="numeric" placeholder="Contoh: 100.000">
+      <div id="werr" class="err"></div>
+      <button class="cta" id="wgo">Tarik dana</button>
+    </div>
+    <div class="card">
+      <h2>Rekening penerima</h2>
+      <label class="f" for="wbank">Bank atau e-wallet</label>
+      <input id="wbank" placeholder="Contoh: BCA, DANA">
+      <label class="f" for="wacc">Nomor rekening atau HP</label>
+      <input id="wacc" inputmode="numeric">
+      <label class="f" for="whold">Nama pemilik</label>
+      <input id="whold">
+      <div id="rerr" class="err"></div>
+      <button class="ghost" id="wsave">Simpan rekening</button>
+    </div>
+    <div class="card"><h2>Riwayat penarikan</h2><div id="wlist"></div></div>
+  </section>
+
+  <section class="pane" id="p-setelan">
+    <div class="card">
+      <h2>Profil</h2>
+      <label class="f" for="dn">Nama tampilan</label>
+      <input id="dn">
+      <label class="f" for="bio">Bio</label>
+      <textarea id="bio" rows="3" maxlength="200"></textarea>
+      <div class="ok" id="msg"></div>
+      <button id="save">Simpan profil</button>
+    </div>
+    <div class="card">
+      <h2>Overlay OBS</h2>
+      <p class="mut">Tempel link ini sebagai Browser Source di OBS. Jangan dibagikan ke siapa pun.</p>
+      <a id="ov" target="_blank"></a>
+      <div style="margin-top:12px"><button class="sm ghost" id="cp">Salin link</button></div>
+    </div>
+    <div class="card">
+      <h2>Ganti password</h2>
+      <label class="f" for="pold">Password lama</label>
+      <input id="pold" type="password" autocomplete="current-password">
+      <label class="f" for="pnew">Password baru</label>
+      <input id="pnew" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+      <div id="perr" class="err"></div>
+      <button class="ghost" id="pgo">Ganti password</button>
+    </div>
+    <button class="ghost" id="out">Keluar</button>
+  </section>
 </div>
+<nav class="nav">
+  <button data-t="dukungan">Dukungan</button>
+  <button data-t="dompet">Dompet</button>
+  <button data-t="setelan">Setelan</button>
+</nav>
 <script>
 const $ = s => document.querySelector(s);
 const t = localStorage.token;
 if (!t) location.href = '/';
 const H = { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' };
 const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+const digits = v => String(v).replace(/\D/g, '');
+const fmt = ts => new Date(ts).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+function msg(sel, ok, text) { $(sel).className = ok ? 'ok' : 'err'; $(sel).textContent = text; }
+function tab(n) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + n));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.t === n));
+  localStorage.tab = n;
+  scrollTo(0, 0);
+}
+document.querySelectorAll('.nav button').forEach(b => b.onclick = () => tab(b.dataset.t));
+tab(localStorage.tab || 'dukungan');
 
+const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
 async function load() {
   const r = await fetch('/api/dashboard', { headers: H });
   if (r.status === 401) { localStorage.removeItem('token'); location.href = '/'; return; }
   const j = await r.json();
-  $('#link').textContent = location.origin + '/' + j.user.username;
-  $('#link').href = '/' + j.user.username;
-  const ovUrl = location.origin + '/overlay/' + j.overlayKey;
-  $('#ov').textContent = ovUrl;
-  $('#ov').href = ovUrl;
-  $('#cp').onclick = () => { navigator.clipboard.writeText(ovUrl); $('#cp').textContent = 'Tersalin'; };
-  if (!window._f) $('#dn').value = j.user.displayName;
-  if (!window._f) $('#bio').value = j.user.bio;
+  window._url = location.origin + '/' + j.user.username;
+  window._ov = location.origin + '/overlay/' + j.overlayKey;
+  $('#link').textContent = window._url; $('#link').href = window._url;
+  $('#ov').textContent = window._ov; $('#ov').href = window._ov;
+  $('#hi').textContent = j.user.displayName;
   $('#total').textContent = rp(j.balance);
   $('#wnote').textContent = 'Total dukungan ' + rp(j.gross) + ', potongan platform ' + j.feePct + '%, bersih ' + rp(j.earned) + '. Minimal tarik ' + rp(j.minWd) + '.';
   if (!window._f) {
+    $('#dn').value = j.user.displayName;
+    $('#bio').value = j.user.bio;
     $('#wbank').value = j.payout.bank || '';
     $('#wacc').value = j.payout.account || '';
     $('#whold').value = j.payout.holder || '';
+    window._f = 1;
   }
-  const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
-  const wl = $('#wlist');
-  wl.innerHTML = '';
-  j.withdrawals.forEach(w => {
-    const el = document.createElement('div');
-    el.className = 'item';
-    const b = document.createElement('b');
-    b.textContent = rp(w.amount) + ' • ' + (lbl[w.status] || w.status);
-    const p = document.createElement('p');
-    p.textContent = new Date(w.createdAt).toLocaleString('id-ID') + (w.note ? ' • ' + w.note : '');
-    el.append(b, p);
-    wl.append(el);
-  });
-  window._f = 1;
   const box = $('#list');
   box.innerHTML = '';
-  if (!j.donations.length) box.innerHTML = '<div class="mut">Belum ada dukungan.</div>';
+  if (!j.donations.length) box.append(el('div', 'empty', 'Belum ada dukungan. Bagikan link kamu ke penonton untuk mulai.'));
   j.donations.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'item';
-    const b = document.createElement('b');
-    b.textContent = d.name + ' • ' + rp(d.amount);
-    const p = document.createElement('p');
-    p.textContent = d.message || '-';
-    el.append(b, p);
-    box.append(el);
+    const it = el('div', 'item');
+    const row = el('div', 'row');
+    row.append(el('b', '', d.name), el('span', 'amt', rp(d.amount)));
+    it.append(row);
+    if (d.message) it.append(el('p', '', d.message));
+    it.append(el('p', '', fmt(d.paidAt)));
+    box.append(it);
+  });
+  const wl = $('#wlist');
+  wl.innerHTML = '';
+  if (!j.withdrawals.length) wl.append(el('div', 'empty', 'Belum ada penarikan.'));
+  j.withdrawals.forEach(w => {
+    const it = el('div', 'item');
+    const row = el('div', 'row');
+    row.append(el('span', 'amt', rp(w.amount)), el('span', 'pill ' + w.status, lbl[w.status] || w.status));
+    it.append(row, el('p', '', fmt(w.createdAt) + (w.note ? '. Catatan: ' + w.note : '')));
+    wl.append(it);
   });
 }
+function copy(text, btn) {
+  const o = btn.textContent;
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = 'Tersalin'; setTimeout(() => btn.textContent = o, 1500); });
+}
+$('#cpl').onclick = () => copy(window._url, $('#cpl'));
+$('#cp').onclick = () => copy(window._ov, $('#cp'));
+$('#wamt').oninput = () => { const d = digits($('#wamt').value); $('#wamt').value = d ? Number(d).toLocaleString('id-ID') : ''; };
+
 $('#save').onclick = async () => {
   await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value }) });
-  $('#msg').textContent = 'Tersimpan';
-  setTimeout(() => $('#msg').textContent = '', 1500);
+  msg('#msg', true, 'Profil tersimpan');
+  setTimeout(() => $('#msg').textContent = '', 2000);
+};
+$('#wsave').onclick = async () => {
+  const r = await fetch('/api/payout', { method: 'PUT', headers: H, body: JSON.stringify({ bank: $('#wbank').value, account: $('#wacc').value, holder: $('#whold').value }) });
+  const j = await r.json();
+  msg('#rerr', r.ok, r.ok ? 'Rekening tersimpan' : j.error);
+};
+$('#wgo').onclick = async () => {
+  const r = await fetch('/api/withdraw', { method: 'POST', headers: H, body: JSON.stringify({ amount: digits($('#wamt').value) }) });
+  const j = await r.json();
+  msg('#werr', r.ok, r.ok ? 'Permintaan terkirim. Admin akan mentransfer ke rekeningmu.' : j.error);
+  if (r.ok) { $('#wamt').value = ''; load(); }
+};
+$('#pgo').onclick = async () => {
+  const r = await fetch('/api/password', { method: 'POST', headers: H, body: JSON.stringify({ old: $('#pold').value, new: $('#pnew').value }) });
+  const j = await r.json();
+  msg('#perr', r.ok, r.ok ? 'Password diganti' : j.error);
+  if (r.ok) { $('#pold').value = ''; $('#pnew').value = ''; }
 };
 $('#out').onclick = async () => {
   await fetch('/api/logout', { method: 'POST', headers: H });
@@ -120,26 +177,6 @@ $('#out').onclick = async () => {
   location.href = '/';
 };
 load();
-$('#wsave').onclick = async () => {
-  const r = await fetch('/api/payout', { method: 'PUT', headers: H, body: JSON.stringify({ bank: $('#wbank').value, account: $('#wacc').value, holder: $('#whold').value }) });
-  const j = await r.json();
-  $('#werr').className = r.ok ? 'ok' : 'err';
-  $('#werr').textContent = r.ok ? 'Rekening tersimpan' : j.error;
-};
-$('#wgo').onclick = async () => {
-  const r = await fetch('/api/withdraw', { method: 'POST', headers: H, body: JSON.stringify({ amount: $('#wamt').value.replace(/\D/g, '') }) });
-  const j = await r.json();
-  $('#werr').className = r.ok ? 'ok' : 'err';
-  $('#werr').textContent = r.ok ? 'Permintaan terkirim' : j.error;
-  if (r.ok) { $('#wamt').value = ''; load(); }
-};
-$('#pgo').onclick = async () => {
-  const r = await fetch('/api/password', { method: 'POST', headers: H, body: JSON.stringify({ old: $('#pold').value, new: $('#pnew').value }) });
-  const j = await r.json();
-  $('#perr').className = r.ok ? 'ok' : 'err';
-  $('#perr').textContent = r.ok ? 'Password diganti' : j.error;
-  if (r.ok) { $('#pold').value = ''; $('#pnew').value = ''; }
-};
 setInterval(load, 15000);
 </script>
 </body>

@@ -3,61 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b1f4b">
 <title>Dukung - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="wrap">
-  <h1 id="name">...</h1>
-  <p class="mut" id="bio"></p>
-  <div class="card" id="box">
-    <h2>Kirim dukungan</h2>
-    <input id="n" placeholder="Nama kamu (opsional)" maxlength="40">
+<div class="top"><div class="in">
+  <div class="av" id="av">?</div>
+  <h1 id="name">Memuat...</h1>
+  <p class="lead" id="bio"></p>
+</div></div>
+<div class="sheet">
+  <div id="box">
+    <h2>Pilih jumlah dukungan</h2>
     <div class="chips" id="chips"></div>
-    <input id="a" type="text" inputmode="numeric" placeholder="Nominal (min. 1000)">
-    <textarea id="m" rows="3" placeholder="Pesan untuk kreator" maxlength="200"></textarea>
+    <label class="f" for="a">Atau tulis sendiri</label>
+    <input id="a" type="text" inputmode="numeric" placeholder="Minimal 1.000">
+    <label class="f" for="n">Nama kamu</label>
+    <input id="n" placeholder="Kosongkan untuk anonim" maxlength="40">
+    <label class="f" for="m">Pesan untuk kreator</label>
+    <textarea id="m" rows="3" maxlength="200"></textarea>
     <div class="err" id="err"></div>
-    <button id="go">Dukung</button>
-    <p class="mut" style="text-align:center">Pembayaran diproses lewat Tripay (QRIS).</p>
+    <button class="cta" id="go">Dukung</button>
+    <p class="mut" style="text-align:center">Bayar dengan QRIS lewat Tripay.</p>
   </div>
-  <div class="card ok" id="done" style="display:none;text-align:center">
-    <h2>Terima kasih!</h2>
-    <p>Dukunganmu sudah terkirim.</p>
-    <button class="ghost" onclick="location.reload()">Dukung lagi</button>
+  <div class="card" id="done" style="display:none">
+    <h2>Dukunganmu terkirim</h2>
+    <p class="mut">Terima kasih sudah mendukung. Kreator akan melihat pesanmu.</p>
+    <button class="ghost" onclick="location.href=location.pathname">Dukung lagi</button>
   </div>
 </div>
 <script>
 const $ = s => document.querySelector(s);
 const username = location.pathname.slice(1).replace(/\/$/, '').toLowerCase();
 const J = { 'Content-Type': 'application/json' };
+const digits = v => String(v).replace(/\D/g, '');
 
 fetch('/api/creator/' + username).then(r => r.json()).then(j => {
-  if (j.error) { $('#name').textContent = j.error; $('#box').style.display = 'none'; return; }
+  if (j.error) { $('#name').textContent = 'Kreator tidak ditemukan'; $('#box').style.display = 'none'; return; }
   $('#name').textContent = j.displayName;
   $('#bio').textContent = j.bio;
+  $('#av').textContent = (j.displayName.trim()[0] || '?').toUpperCase();
   document.title = j.displayName + ' - Dukung.in';
 });
 
+function sync() {
+  const d = digits($('#a').value);
+  $('#a').value = d ? Number(d).toLocaleString('id-ID') : '';
+  $('#go').textContent = d ? 'Dukung Rp' + Number(d).toLocaleString('id-ID') : 'Dukung';
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.v === d));
+}
 [5000, 10000, 25000, 50000].forEach(v => {
   const b = document.createElement('button');
   b.className = 'chip';
   b.type = 'button';
+  b.dataset.v = String(v);
   b.textContent = 'Rp' + v.toLocaleString('id-ID');
-  b.onclick = () => {
-    $('#a').value = v;
-    document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
-    b.classList.add('on');
-  };
+  b.onclick = () => { $('#a').value = v; sync(); };
   $('#chips').append(b);
 });
+$('#a').oninput = sync;
 
 if (new URLSearchParams(location.search).has('thanks')) { $('#box').style.display = 'none'; $('#done').style.display = 'block'; }
+
 $('#go').onclick = async () => {
   $('#err').textContent = '';
-  const body = JSON.stringify({ name: $('#n').value, amount: $('#a').value.replace(/\D/g, ''), message: $('#m').value });
+  $('#go').disabled = true;
+  const body = JSON.stringify({ name: $('#n').value, amount: digits($('#a').value), message: $('#m').value });
   const r = await fetch('/api/creator/' + username + '/support', { method: 'POST', headers: J, body });
   const j = await r.json();
-  if (!r.ok) { $('#err').textContent = j.error; return; }
+  if (!r.ok) { $('#err').textContent = j.error; $('#go').disabled = false; return; }
   if (j.checkoutUrl) { location.href = j.checkoutUrl; return; }
   await fetch('/api/donations/' + j.id + '/pay', { method: 'POST' });
   $('#box').style.display = 'none';
