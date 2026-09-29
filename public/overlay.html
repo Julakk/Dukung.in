@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlay - Dukung.in</title>
+<style>
+html, body { margin:0; background:transparent; font-family:system-ui,sans-serif; overflow:hidden; }
+#a { position:fixed; left:50%; top:30px; transform:translateX(-50%) translateY(-250%); width:min(420px,90%); background:#181b24; border:2px solid #ff7a1a; border-radius:16px; padding:16px 20px; color:#fff; text-align:center; opacity:0; transition:transform .5s ease, opacity .5s ease; box-sizing:border-box; }
+#a.show { transform:translateX(-50%) translateY(0); opacity:1; }
+#t { font-size:20px; font-weight:700; } #t span { color:#ff7a1a; }
+#m { margin-top:6px; font-size:16px; color:#d5d8e2; word-break:break-word; }
+#hint { position:fixed; bottom:8px; left:8px; font-size:12px; color:#888; }
+</style>
+</head>
+<body>
+<div id="a"><div id="t"></div><div id="m"></div></div>
+<div id="hint" style="display:none">Ketuk layar untuk aktifkan suara</div>
+<script>
+const key = location.pathname.split('/').pop();
+const test = new URLSearchParams(location.search).has('test');
+const el = document.getElementById('a');
+const queue = [];
+let showing = false, since = null, ctx = null;
+
+function beep() {
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    [660, 880].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = f; o.connect(g); g.connect(ctx.destination);
+      const t = ctx.currentTime + i * 0.15;
+      g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.start(t); o.stop(t + 0.3);
+    });
+  } catch (e) {}
+}
+document.body.addEventListener('click', () => { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); document.getElementById('hint').style.display = 'none'; });
+
+function next() {
+  if (showing || !queue.length) return;
+  showing = true;
+  const d = queue.shift();
+  const t = document.getElementById('t');
+  t.textContent = '';
+  const b = document.createElement('span');
+  b.textContent = d.name;
+  t.append(b, ' memberi Rp' + Number(d.amount).toLocaleString('id-ID'));
+  document.getElementById('m').textContent = d.message || '';
+  el.classList.add('show');
+  beep();
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => { showing = false; next(); }, 700); }, 7000);
+}
+
+async function poll() {
+  try {
+    const url = '/api/overlay/' + key + '/poll' + (since === null ? '' : '?since=' + since);
+    const r = await fetch(url);
+    if (!r.ok) return;
+    const j = await r.json();
+    if (since === null) since = j.now;
+    j.donations.forEach(d => { queue.push(d); if (d.paidAt > since) since = d.paidAt; });
+    next();
+  } catch (e) {}
+}
+
+if (test) {
+  document.body.style.background = '#0f1117';
+  document.getElementById('hint').style.display = 'block';
+  queue.push({ name: 'Tester', amount: 25000, message: 'Semangat terus bang!' });
+  next();
+}
+poll();
+setInterval(poll, 3000);
+</script>
+</body>
+</html>

@@ -18,6 +18,12 @@
     <div class="big" id="total">Rp0</div>
   </div>
   <div class="card">
+    <h2>Overlay OBS</h2>
+    <div class="mut">Tempel di OBS sebagai Browser Source. Jangan dibagikan.</div>
+    <a id="ov" style="color:var(--ac);word-break:break-all" target="_blank"></a>
+    <button class="ghost" id="cp">Salin link</button>
+  </div>
+  <div class="card">
     <h2>Profil</h2>
     <input id="dn" placeholder="Nama tampilan">
     <textarea id="bio" rows="3" placeholder="Bio singkat"></textarea>
@@ -43,6 +49,10 @@ async function load() {
   const j = await r.json();
   $('#link').textContent = location.origin + '/' + j.user.username;
   $('#link').href = '/' + j.user.username;
+  const ovUrl = location.origin + '/overlay/' + j.overlayKey;
+  $('#ov').textContent = ovUrl;
+  $('#ov').href = ovUrl;
+  $('#cp').onclick = () => { navigator.clipboard.writeText(ovUrl); $('#cp').textContent = 'Tersalin'; };
   $('#dn').value = j.user.displayName;
   $('#bio').value = j.user.bio;
   $('#total').textContent = rp(j.total);

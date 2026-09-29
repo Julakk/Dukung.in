@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -79,6 +79,7 @@ app.get('/api/dashboard', auth, (req, res) => {
     .sort((a, b) => b.paidAt - a.paidAt);
   res.json({
     user: pub(req.user),
+    overlayKey: getKey(req.user),
     total: list.reduce((s, d) => s + d.amount, 0),
     donations: list.slice(0, 50)
   });
@@ -118,6 +119,26 @@ app.post('/api/donations/:id/pay', (req, res) => {
   if (d.status !== 'paid') { d.status = 'paid'; d.paidAt = Date.now(); save(); }
   res.json({ ok: true });
 });
+
+function getKey(u) {
+  if (!u.overlayKey) { u.overlayKey = crypto.randomBytes(12).toString('hex'); save(); }
+  return u.overlayKey;
+}
+
+app.get('/api/overlay/:key/poll', (req, res) => {
+  const u = data.users.find(x => x.overlayKey && x.overlayKey === req.params.key);
+  if (!u) return res.status(404).json({ error: 'Key salah' });
+  if (req.query.since === undefined) return res.json({ now: Date.now(), donations: [] });
+  const since = parseInt(req.query.since, 10) || 0;
+  const list = data.donations
+    .filter(d => d.creatorId === u.id && d.status === 'paid' && d.paidAt > since)
+    .sort((a, b) => a.paidAt - b.paidAt)
+    .slice(0, 20)
+    .map(d => ({ id: d.id, name: d.name, amount: d.amount, message: d.message, paidAt: d.paidAt }));
+  res.json({ now: Date.now(), donations: list });
+});
+
+app.get('/overlay/:key', (req, res) => res.sendFile(path.join(__dirname, 'public', 'overlay.html')));
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 
