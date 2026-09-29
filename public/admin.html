@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin</h1>
+  <div class="err" id="err"></div>
+  <div id="list"></div>
+  <button class="ghost" id="rk">Ganti kunci admin</button>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+function key() {
+  let k = sessionStorage.adminKey;
+  if (!k) { k = prompt('Kunci admin'); if (k) sessionStorage.adminKey = k; }
+  return k || '';
+}
+async function api(url, method, body) {
+  const r = await fetch(url, { method: method || 'GET', headers: { 'x-admin-key': key(), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json();
+  if (r.status === 401) { sessionStorage.removeItem('adminKey'); $('#err').textContent = j.error; return null; }
+  return { ok: r.ok, j };
+}
+async function act(id, action) {
+  let note = '';
+  if (action === 'reject') note = prompt('Alasan penolakan (opsional)') || '';
+  else if (!confirm('Tandai sudah ditransfer?')) return;
+  const r = await api('/api/admin/withdrawals/' + id, 'POST', { action, note });
+  if (r && !r.ok) $('#err').textContent = r.j.error;
+  load();
+}
+async function load() {
+  const r = await api('/api/admin/withdrawals');
+  if (!r) return;
+  $('#err').textContent = '';
+  const box = $('#list');
+  box.innerHTML = '';
+  if (!r.j.length) box.innerHTML = '<div class="mut">Belum ada permintaan.</div>';
+  r.j.forEach(w => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    const t = document.createElement('b');
+    t.textContent = rp(w.amount) + ' • @' + w.username + ' • ' + w.status;
+    const p = document.createElement('p');
+    p.className = 'mut';
+    p.textContent = w.payout.bank + ' ' + w.payout.account + ' a.n. ' + w.payout.holder + ' • ' + new Date(w.createdAt).toLocaleString('id-ID');
+    c.append(t, p);
+    if (w.status === 'pending') {
+      const a = document.createElement('button');
+      a.textContent = 'Sudah ditransfer';
+      a.onclick = () => act(w.id, 'paid');
+      const b = document.createElement('button');
+      b.className = 'ghost';
+      b.textContent = 'Tolak';
+      b.onclick = () => act(w.id, 'reject');
+      c.append(a, b);
+    }
+    box.append(c);
+  });
+}
+$('#rk').onclick = () => { sessionStorage.removeItem('adminKey'); load(); };
+load();
+</script>
+</body>
+</html>

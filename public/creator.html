@@ -14,7 +14,7 @@
     <h2>Kirim dukungan</h2>
     <input id="n" placeholder="Nama kamu (opsional)" maxlength="40">
     <div class="chips" id="chips"></div>
-    <input id="a" type="number" inputmode="numeric" placeholder="Nominal (min. 1000)">
+    <input id="a" type="text" inputmode="numeric" placeholder="Nominal (min. 1000)">
     <textarea id="m" rows="3" placeholder="Pesan untuk kreator" maxlength="200"></textarea>
     <div class="err" id="err"></div>
     <button id="go">Dukung</button>
@@ -54,7 +54,7 @@ fetch('/api/creator/' + username).then(r => r.json()).then(j => {
 if (new URLSearchParams(location.search).has('thanks')) { $('#box').style.display = 'none'; $('#done').style.display = 'block'; }
 $('#go').onclick = async () => {
   $('#err').textContent = '';
-  const body = JSON.stringify({ name: $('#n').value, amount: $('#a').value, message: $('#m').value });
+  const body = JSON.stringify({ name: $('#n').value, amount: $('#a').value.replace(/\D/g, ''), message: $('#m').value });
   const r = await fetch('/api/creator/' + username + '/support', { method: 'POST', headers: J, body });
   const j = await r.json();
   if (!r.ok) { $('#err').textContent = j.error; return; }

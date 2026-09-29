@@ -14,7 +14,7 @@
     <a id="link" style="color:var(--ac);word-break:break-all" target="_blank"></a>
   </div>
   <div class="card">
-    <div class="mut">Total diterima</div>
+    <div class="mut">Saldo tersedia</div>
     <div class="big" id="total">Rp0</div>
   </div>
   <div class="card">
@@ -22,6 +22,18 @@
     <div class="mut">Tempel di OBS sebagai Browser Source. Jangan dibagikan.</div>
     <a id="ov" style="color:var(--ac);word-break:break-all" target="_blank"></a>
     <button class="ghost" id="cp">Salin link</button>
+  </div>
+  <div class="card">
+    <h2>Penarikan dana</h2>
+    <div class="mut" id="wnote"></div>
+    <input id="wbank" placeholder="Bank / e-wallet (mis. BCA, DANA)">
+    <input id="wacc" placeholder="Nomor rekening / HP">
+    <input id="whold" placeholder="Nama pemilik rekening">
+    <button class="ghost" id="wsave">Simpan rekening</button>
+    <input id="wamt" type="text" inputmode="numeric" placeholder="Jumlah penarikan" style="margin-top:14px">
+    <div id="werr" class="err"></div>
+    <button id="wgo">Tarik dana</button>
+    <div id="wlist" style="margin-top:12px"></div>
   </div>
   <div class="card">
     <h2>Profil</h2>
@@ -53,9 +65,29 @@ async function load() {
   $('#ov').textContent = ovUrl;
   $('#ov').href = ovUrl;
   $('#cp').onclick = () => { navigator.clipboard.writeText(ovUrl); $('#cp').textContent = 'Tersalin'; };
-  $('#dn').value = j.user.displayName;
-  $('#bio').value = j.user.bio;
-  $('#total').textContent = rp(j.total);
+  if (!window._f) $('#dn').value = j.user.displayName;
+  if (!window._f) $('#bio').value = j.user.bio;
+  $('#total').textContent = rp(j.balance);
+  $('#wnote').textContent = 'Total dukungan ' + rp(j.gross) + ', potongan platform ' + j.feePct + '%, bersih ' + rp(j.earned) + '. Minimal tarik ' + rp(j.minWd) + '.';
+  if (!window._f) {
+    $('#wbank').value = j.payout.bank || '';
+    $('#wacc').value = j.payout.account || '';
+    $('#whold').value = j.payout.holder || '';
+  }
+  const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
+  const wl = $('#wlist');
+  wl.innerHTML = '';
+  j.withdrawals.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'item';
+    const b = document.createElement('b');
+    b.textContent = rp(w.amount) + ' • ' + (lbl[w.status] || w.status);
+    const p = document.createElement('p');
+    p.textContent = new Date(w.createdAt).toLocaleString('id-ID') + (w.note ? ' • ' + w.note : '');
+    el.append(b, p);
+    wl.append(el);
+  });
+  window._f = 1;
   const box = $('#list');
   box.innerHTML = '';
   if (!j.donations.length) box.innerHTML = '<div class="mut">Belum ada dukungan.</div>';
@@ -81,6 +113,19 @@ $('#out').onclick = async () => {
   location.href = '/';
 };
 load();
+$('#wsave').onclick = async () => {
+  const r = await fetch('/api/payout', { method: 'PUT', headers: H, body: JSON.stringify({ bank: $('#wbank').value, account: $('#wacc').value, holder: $('#whold').value }) });
+  const j = await r.json();
+  $('#werr').className = r.ok ? 'ok' : 'err';
+  $('#werr').textContent = r.ok ? 'Rekening tersimpan' : j.error;
+};
+$('#wgo').onclick = async () => {
+  const r = await fetch('/api/withdraw', { method: 'POST', headers: H, body: JSON.stringify({ amount: $('#wamt').value.replace(/\D/g, '') }) });
+  const j = await r.json();
+  $('#werr').className = r.ok ? 'ok' : 'err';
+  $('#werr').textContent = r.ok ? 'Permintaan terkirim' : j.error;
+  if (r.ok) { $('#wamt').value = ''; load(); }
+};
 setInterval(load, 15000);
 </script>
 </body>
