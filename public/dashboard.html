@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Dashboard</h1>
+  <div class="card">
+    <div class="mut">Link dukunganmu</div>
+    <a id="link" style="color:var(--ac);word-break:break-all" target="_blank"></a>
+  </div>
+  <div class="card">
+    <div class="mut">Total diterima</div>
+    <div class="big" id="total">Rp0</div>
+  </div>
+  <div class="card">
+    <h2>Profil</h2>
+    <input id="dn" placeholder="Nama tampilan">
+    <textarea id="bio" rows="3" placeholder="Bio singkat"></textarea>
+    <div class="ok" id="msg"></div>
+    <button id="save">Simpan</button>
+  </div>
+  <div class="card">
+    <h2>Dukungan masuk</h2>
+    <div id="list"></div>
+  </div>
+  <button class="ghost" id="out">Keluar</button>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const t = localStorage.token;
+if (!t) location.href = '/';
+const H = { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' };
+const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+
+async function load() {
+  const r = await fetch('/api/dashboard', { headers: H });
+  if (r.status === 401) { localStorage.removeItem('token'); location.href = '/'; return; }
+  const j = await r.json();
+  $('#link').textContent = location.origin + '/' + j.user.username;
+  $('#link').href = '/' + j.user.username;
+  $('#dn').value = j.user.displayName;
+  $('#bio').value = j.user.bio;
+  $('#total').textContent = rp(j.total);
+  const box = $('#list');
+  box.innerHTML = '';
+  if (!j.donations.length) box.innerHTML = '<div class="mut">Belum ada dukungan.</div>';
+  j.donations.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'item';
+    const b = document.createElement('b');
+    b.textContent = d.name + ' • ' + rp(d.amount);
+    const p = document.createElement('p');
+    p.textContent = d.message || '-';
+    el.append(b, p);
+    box.append(el);
+  });
+}
+$('#save').onclick = async () => {
+  await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value }) });
+  $('#msg').textContent = 'Tersimpan';
+  setTimeout(() => $('#msg').textContent = '', 1500);
+};
+$('#out').onclick = async () => {
+  await fetch('/api/logout', { method: 'POST', headers: H });
+  localStorage.removeItem('token');
+  location.href = '/';
+};
+load();
+setInterval(load, 15000);
+</script>
+</body>
+</html>

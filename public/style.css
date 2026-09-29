@@ -1,0 +1,19 @@
+:root { --bg:#0f1117; --card:#181b24; --line:#2a2f3c; --tx:#e8eaf0; --mut:#8b92a5; --ac:#ff7a1a; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--tx); }
+.wrap { max-width:480px; margin:0 auto; padding:20px 16px 60px; }
+h1 { margin:8px 0 4px; } h2 { margin:0 0 10px; font-size:18px; }
+.mut { color:var(--mut); font-size:14px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin:14px 0; }
+input, textarea { width:100%; padding:12px; margin:6px 0; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--tx); font-size:15px; font-family:inherit; }
+button { width:100%; padding:13px; border:0; border-radius:10px; background:var(--ac); color:#fff; font-size:16px; font-weight:600; margin-top:8px; }
+button.ghost { background:transparent; border:1px solid var(--line); color:var(--tx); }
+.link { color:var(--ac); cursor:pointer; text-align:center; margin-top:12px; font-size:14px; }
+.err { color:#ff5c5c; font-size:14px; min-height:18px; }
+.ok { color:#4ade80; }
+.chips { display:flex; gap:8px; flex-wrap:wrap; margin:6px 0; }
+.chip { flex:1; min-width:80px; width:auto; margin:0; padding:10px; background:var(--bg); border:1px solid var(--line); color:var(--tx); font-size:14px; }
+.chip.on { border-color:var(--ac); color:var(--ac); }
+.item { border-top:1px solid var(--line); padding:10px 0; }
+.item p { margin:4px 0 0; color:var(--mut); font-size:14px; word-break:break-word; }
+.big { font-size:28px; font-weight:700; color:var(--ac); }

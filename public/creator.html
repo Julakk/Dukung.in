@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dukung - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1 id="name">...</h1>
+  <p class="mut" id="bio"></p>
+  <div class="card" id="box">
+    <h2>Kirim dukungan</h2>
+    <input id="n" placeholder="Nama kamu (opsional)" maxlength="40">
+    <div class="chips" id="chips"></div>
+    <input id="a" type="number" inputmode="numeric" placeholder="Nominal (min. 1000)">
+    <textarea id="m" rows="3" placeholder="Pesan untuk kreator" maxlength="200"></textarea>
+    <div class="err" id="err"></div>
+    <button id="go">Dukung</button>
+    <p class="mut" style="text-align:center">Mode simulasi, belum ada pembayaran asli.</p>
+  </div>
+  <div class="card ok" id="done" style="display:none;text-align:center">
+    <h2>Terima kasih!</h2>
+    <p>Dukunganmu sudah terkirim.</p>
+    <button class="ghost" onclick="location.reload()">Dukung lagi</button>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const username = location.pathname.slice(1).replace(/\/$/, '').toLowerCase();
+const J = { 'Content-Type': 'application/json' };
+
+fetch('/api/creator/' + username).then(r => r.json()).then(j => {
+  if (j.error) { $('#name').textContent = j.error; $('#box').style.display = 'none'; return; }
+  $('#name').textContent = j.displayName;
+  $('#bio').textContent = j.bio;
+  document.title = j.displayName + ' - Dukung.in';
+});
+
+[5000, 10000, 25000, 50000].forEach(v => {
+  const b = document.createElement('button');
+  b.className = 'chip';
+  b.type = 'button';
+  b.textContent = 'Rp' + v.toLocaleString('id-ID');
+  b.onclick = () => {
+    $('#a').value = v;
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  };
+  $('#chips').append(b);
+});
+
+$('#go').onclick = async () => {
+  $('#err').textContent = '';
+  const body = JSON.stringify({ name: $('#n').value, amount: $('#a').value, message: $('#m').value });
+  const r = await fetch('/api/creator/' + username + '/support', { method: 'POST', headers: J, body });
+  const j = await r.json();
+  if (!r.ok) { $('#err').textContent = j.error; return; }
+  await fetch('/api/donations/' + j.id + '/pay', { method: 'POST' });
+  $('#box').style.display = 'none';
+  $('#done').style.display = 'block';
+};
+</script>
+</body>
+</html>

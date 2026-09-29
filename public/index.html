@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Dukung<span style="color:var(--ac)">.in</span></h1>
+  <p class="mut">Platform dukungan untuk kreator Indonesia.</p>
+  <div class="card">
+    <form id="f">
+      <input id="u" placeholder="Username" autocomplete="username" required>
+      <input id="dn" placeholder="Nama tampilan" style="display:none">
+      <input id="p" type="password" placeholder="Password" autocomplete="current-password" required>
+      <div class="err" id="err"></div>
+      <button id="btn" type="submit">Masuk</button>
+    </form>
+    <div class="link" id="sw"></div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+let mode = 'login';
+if (localStorage.token) location.href = '/dashboard';
+function setMode(m) {
+  mode = m;
+  $('#dn').style.display = m === 'register' ? 'block' : 'none';
+  $('#btn').textContent = m === 'register' ? 'Daftar' : 'Masuk';
+  $('#sw').textContent = m === 'register' ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar';
+  $('#err').textContent = '';
+}
+$('#sw').onclick = () => setMode(mode === 'login' ? 'register' : 'login');
+$('#f').onsubmit = async e => {
+  e.preventDefault();
+  const body = { username: $('#u').value.trim(), password: $('#p').value, displayName: $('#dn').value.trim() };
+  const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!r.ok) { $('#err').textContent = j.error; return; }
+  localStorage.token = j.token;
+  location.href = '/dashboard';
+};
+setMode('login');
+</script>
+</body>
+</html>
