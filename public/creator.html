@@ -18,7 +18,7 @@
     <textarea id="m" rows="3" placeholder="Pesan untuk kreator" maxlength="200"></textarea>
     <div class="err" id="err"></div>
     <button id="go">Dukung</button>
-    <p class="mut" style="text-align:center">Mode simulasi, belum ada pembayaran asli.</p>
+    <p class="mut" style="text-align:center">Pembayaran diproses lewat Tripay (QRIS).</p>
   </div>
   <div class="card ok" id="done" style="display:none;text-align:center">
     <h2>Terima kasih!</h2>
@@ -51,12 +51,14 @@ fetch('/api/creator/' + username).then(r => r.json()).then(j => {
   $('#chips').append(b);
 });
 
+if (new URLSearchParams(location.search).has('thanks')) { $('#box').style.display = 'none'; $('#done').style.display = 'block'; }
 $('#go').onclick = async () => {
   $('#err').textContent = '';
   const body = JSON.stringify({ name: $('#n').value, amount: $('#a').value, message: $('#m').value });
   const r = await fetch('/api/creator/' + username + '/support', { method: 'POST', headers: J, body });
   const j = await r.json();
   if (!r.ok) { $('#err').textContent = j.error; return; }
+  if (j.checkoutUrl) { location.href = j.checkoutUrl; return; }
   await fetch('/api/donations/' + j.id + '/pay', { method: 'POST' });
   $('#box').style.display = 'none';
   $('#done').style.display = 'block';
