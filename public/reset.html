@@ -25,7 +25,7 @@ $('#go').onclick = async () => {
   $('#err').className = 'ok';
   $('#err').textContent = 'Berhasil. Mengalihkan ke halaman masuk...';
   localStorage.removeItem('token');
-  setTimeout(() => location.href = '/', 1500);
+  setTimeout(() => location.href = '/login', 1500);
 };
 </script>
 </body>

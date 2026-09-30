@@ -3,54 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1b1f4b">
-<title>Dukung.in</title>
+<meta name="theme-color" content="#37a2ea">
+<meta name="description" content="Buat halaman dukungan, tampilkan notifikasi di stream, dan tarik dananya ke rekening atau e-wallet.">
+<title>Dukung.in - Dukungan dari penontonmu, langsung jadi saldo</title>
 <link rel="stylesheet" href="/style.css">
+<style>
+.bar{display:flex;justify-content:space-between;align-items:center;max-width:960px;margin:0 auto;padding:16px}
+.logo{font-weight:800;font-size:22px;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+.btn{display:inline-block;padding:13px 24px;border-radius:999px;font-weight:800;text-decoration:none;background:var(--ink);color:#fff;word-break:normal}
+.btn.w{background:#fff;color:var(--ink)}
+.btn.o{background:transparent;border:1.5px solid var(--ink);color:var(--ink);padding:11.5px 22px}
+.hero{background:var(--brand);padding-bottom:64px}
+.hero .c{max-width:960px;margin:0 auto;padding:28px 16px 0;display:flex;flex-wrap:wrap;gap:36px;align-items:center}
+.hero .t{flex:1 1 340px}
+.hero h1{font-size:clamp(34px,7vw,54px);line-height:1.08}
+.hero p{font-size:18px;margin:16px 0 26px;color:#123a5e;max-width:30em}
+.row2{display:flex;gap:10px;flex-wrap:wrap}
+.mock{flex:1 1 280px;max-width:360px;background:#fff;border-radius:22px;padding:18px}
+.mock .al{background:var(--ink);color:#fff;border-radius:14px;padding:14px;text-align:center;font-weight:800}
+.mock .al span{color:var(--brand)}
+.mock .al small{display:block;font-weight:500;color:#cfe6f8;margin-top:4px}
+.mock .pg{margin-top:14px;display:flex;gap:10px;align-items:center}
+.mock .pg .av{width:44px;height:44px;font-size:20px;margin:0;background:var(--brand)}
+.sec{max-width:960px;margin:0 auto;padding:60px 16px 0}
+.sec h2{font-size:clamp(24px,4vw,32px);margin-bottom:8px}
+.sec>p{margin:0 0 24px;color:var(--mut);max-width:36em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.ft{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px}
+.ft i{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#e3effa;font-style:normal;font-size:22px;margin-bottom:12px}
+.ft h3{margin:0 0 4px;font-size:17px}
+.ft p{margin:0;color:var(--mut)}
+.stp b{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--brand);margin-bottom:10px}
+.end{margin-top:64px;background:var(--ink);color:#fff;text-align:center;padding:52px 16px}
+.end h2{font-size:clamp(24px,4vw,32px)}
+.end p{color:#cfe6f8;margin:8px 0 22px}
+footer{text-align:center;padding:24px 16px 32px;color:var(--mut);font-size:13px}
+</style>
 </head>
 <body>
-<div class="top"><div class="in">
-  <h1>Dukung.in</h1>
-  <p class="lead">Terima dukungan dari penontonmu. Langsung masuk ke saldo.</p>
-</div></div>
-<div class="sheet">
-  <div class="seg"><button type="button" data-m="login" class="on">Masuk</button><button type="button" data-m="register">Daftar</button></div>
-  <form id="f">
-    <label class="f" for="u">Username</label>
-    <input id="u" autocomplete="username" autocapitalize="none" required>
-    <div id="dnw" style="display:none">
-      <label class="f" for="dn">Nama tampilan</label>
-      <input id="dn" placeholder="Nama yang dilihat pendukungmu">
+<header class="hero">
+  <div class="bar">
+    <a class="logo" href="/">Dukung.in</a>
+    <a class="btn w" id="nb" href="/login">Masuk</a>
+  </div>
+  <div class="c">
+    <div class="t">
+      <h1>Dukungan dari penontonmu, langsung jadi saldo.</h1>
+      <p>Buat halaman dukungan, tampilkan notifikasi di stream, dan tarik dananya ke rekening atau e-wallet.</p>
+      <div class="row2">
+        <a class="btn" href="/login?daftar">Buat akun</a>
+        <a class="btn o" href="#cara">Lihat cara kerjanya</a>
+      </div>
     </div>
-    <label class="f" for="p">Password</label>
-    <input id="p" type="password" autocomplete="current-password" required>
-    <div class="err" id="err"></div>
-    <button class="cta" id="btn" type="submit">Masuk</button>
-  </form>
-</div>
+    <div class="mock" aria-hidden="true">
+      <div class="al"><span>Budi</span> memberi Rp25.000<small>Semangat terus streamnya, bang!</small></div>
+      <div class="pg"><div class="av">N</div><div><b>Nadia Gaming</b><div class="mut">dukung.in/nadia</div></div></div>
+    </div>
+  </div>
+</header>
+
+<section class="sec">
+  <h2>Semua yang kreator butuhkan untuk mulai</h2>
+  <p>Satu tempat untuk menerima dukungan, memantau saldo, dan menarik dana.</p>
+  <div class="grid">
+    <div class="ft"><i>📺</i><h3>Overlay OBS</h3><p>Notifikasi muncul di layar streammu setiap ada dukungan masuk.</p></div>
+    <div class="ft"><i>📱</i><h3>Bayar pakai QRIS</h3><p>Pendukung tinggal scan dari e-wallet atau mobile banking favoritnya.</p></div>
+    <div class="ft"><i>🔗</i><h3>Link sendiri</h3><p>Halaman dukunganmu punya alamat pendek yang mudah dibagikan.</p></div>
+    <div class="ft"><i>💬</i><h3>Pesan dari pendukung</h3><p>Setiap dukungan bisa disertai nama dan pesan untukmu.</p></div>
+    <div class="ft"><i>💸</i><h3>Tarik ke rekening</h3><p>Ajukan penarikan ke bank atau e-wallet langsung dari dashboard.</p></div>
+    <div class="ft"><i>🔒</i><h3>Akun terjaga</h3><p>Password disimpan dengan aman dan sesi login otomatis kedaluwarsa.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="cara">
+  <h2>Cara kerjanya</h2>
+  <p>Tiga langkah, tanpa ribet.</p>
+  <div class="grid">
+    <div class="ft stp"><b>1</b><h3>Daftar dan bagikan link</h3><p>Buat akun, lengkapi profil, lalu tempel link dukunganmu di bio atau deskripsi stream.</p></div>
+    <div class="ft stp"><b>2</b><h3>Penonton mendukung</h3><p>Mereka pilih nominal, tulis pesan, dan bayar lewat QRIS.</p></div>
+    <div class="ft stp"><b>3</b><h3>Saldo masuk, tarik kapan siap</h3><p>Dukungan yang lunas langsung menambah saldo dan memunculkan alert di stream.</p></div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Biaya yang jelas</h2>
+  <p>Potongan platform 10% dari setiap dukungan. Minimal penarikan Rp50.000. Tidak ada biaya bulanan.</p>
+</section>
+
+<section class="end">
+  <h2>Siap menerima dukungan pertamamu?</h2>
+  <p>Buat akun gratis dan mulai bagikan link-mu hari ini.</p>
+  <a class="btn w" href="/login?daftar" style="background:var(--brand)">Buat akun</a>
+</section>
+<footer>© 2026 Dukung.in</footer>
 <script>
-const $ = s => document.querySelector(s);
-let mode = 'login';
-if (localStorage.token) location.href = '/dashboard';
-function setMode(m) {
-  mode = m;
-  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
-  $('#dnw').style.display = m === 'register' ? 'block' : 'none';
-  $('#btn').textContent = m === 'register' ? 'Buat akun' : 'Masuk';
-  $('#p').autocomplete = m === 'register' ? 'new-password' : 'current-password';
-  $('#err').textContent = '';
-}
-document.querySelectorAll('.seg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
-$('#f').onsubmit = async e => {
-  e.preventDefault();
-  $('#btn').disabled = true;
-  const body = { username: $('#u').value.trim(), password: $('#p').value, displayName: $('#dn').value.trim() };
-  const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const j = await r.json();
-  $('#btn').disabled = false;
-  if (!r.ok) { $('#err').textContent = j.error; return; }
-  localStorage.token = j.token;
-  location.href = '/dashboard';
-};
+if (localStorage.token) { const n = document.getElementById('nb'); n.textContent = 'Dashboard'; n.href = '/dashboard'; }
 </script>
 </body>
 </html>

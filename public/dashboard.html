@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1b1f4b">
+<meta name="theme-color" content="#37a2ea">
 <title>Dashboard - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -82,7 +82,7 @@
 <script>
 const $ = s => document.querySelector(s);
 const t = localStorage.token;
-if (!t) location.href = '/';
+if (!t) location.href = '/login';
 const H = { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' };
 const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
 const digits = v => String(v).replace(/\D/g, '');
@@ -101,7 +101,7 @@ tab(localStorage.tab || 'dukungan');
 const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
 async function load() {
   const r = await fetch('/api/dashboard', { headers: H });
-  if (r.status === 401) { localStorage.removeItem('token'); location.href = '/'; return; }
+  if (r.status === 401) { localStorage.removeItem('token'); location.href = '/login'; return; }
   const j = await r.json();
   window._url = location.origin + '/' + j.user.username;
   window._ov = location.origin + '/overlay/' + j.overlayKey;
@@ -174,7 +174,7 @@ $('#pgo').onclick = async () => {
 $('#out').onclick = async () => {
   await fetch('/api/logout', { method: 'POST', headers: H });
   localStorage.removeItem('token');
-  location.href = '/';
+  location.href = '/login';
 };
 load();
 setInterval(load, 15000);
