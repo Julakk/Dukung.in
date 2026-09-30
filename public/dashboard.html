@@ -30,40 +30,71 @@
     <div class="sub" id="fee"></div>
   </div>
   <aside>
-    <details class="card" open style="margin-bottom:14px"><summary>Kreator</summary><div class="bd"><div class="mb">
+    <details class="card" open style="margin-bottom:14px"><summary>Akun</summary><div class="bd"><div class="mb">
       <button data-t="halaman">Halaman</button>
       <button data-t="pemasukan">Pemasukan</button>
       <button data-t="penarikan">Penarikan</button>
     </div></div></details>
-    <details class="card" open><summary>Pengaturan</summary><div class="bd"><div class="mb">
+    <details class="card" open style="margin-bottom:14px"><summary>Live stream overlay</summary><div class="bd"><div class="mb">
       <button data-t="overlay">Overlay OBS</button>
+    </div></div></details>
+    <details class="card" open><summary>Pengaturan</summary><div class="bd"><div class="mb">
       <button data-t="keamanan">Keamanan</button>
     </div></div></details>
   </aside>
   <div class="ct">
     <section class="pane on" id="p-halaman">
-      <details class="card" open><summary>Link halaman</summary><div class="bd">
+      <details class="card" open><summary>Halaman</summary><div class="bd">
+        <div class="mut">Link halaman kamu</div>
         <a id="link" target="_blank"></a>
-        <div class="acts"><button class="cta" id="cpl">Salin link</button><button class="ghost" id="opn">Buka di tab baru</button></div>
+        <div class="acts"><button class="ghost" id="cpl">Salin link</button><button class="ghost" id="opn">Buka di tab baru</button></div>
       </div></details>
+
       <details class="card" open><summary>Profil</summary><div class="bd">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
-          <div class="avbox" id="avbox">?</div>
-          <div><button class="cta sm" id="avb" type="button">Unggah foto</button> <button class="ghost sm" id="avd" type="button">Hapus</button></div>
-          <input type="file" id="avf" accept="image/*" hidden>
+        <div class="mut">Foto profil</div>
+        <div class="ir"><div class="avbox" id="avbox">?</div><span class="ia"><button class="cta sm" id="avb" type="button">Unggah</button><button class="ghost sm" id="avd" type="button">Hapus</button></span></div>
+        <div class="mut">Foto banner</div>
+        <div class="ir"><div class="bnbox" id="bnbox"></div><span class="ia"><button class="cta sm" id="bnb" type="button">Unggah</button><button class="ghost sm" id="bnd" type="button">Hapus</button></span></div>
+        <input type="file" id="avf" accept="image/*" hidden>
+        <input type="file" id="bnf" accept="image/*" hidden>
+        <div class="g2">
+          <div><label class="f" for="dn">Nama</label><input id="dn"></div>
+          <div><label class="f" for="un">Username</label><input id="un" disabled></div>
         </div>
-        <label class="f" for="dn">Nama tampilan</label>
-        <input id="dn">
-        <label class="f" for="cat">Kategori</label>
-        <select id="cat"><option value="">Pilih kategori</option><option>Streamer</option><option>Content Creator</option><option>Virtual YouTuber</option><option>Musisi</option><option>Seniman</option><option>Cosplayer</option><option>Komunitas</option><option>Lainnya</option></select>
+        <div class="g3">
+          <div><label class="f" for="cat">Kategori</label>
+            <select id="cat"><option value="">Pilih</option><option>Streamer</option><option>Content Creator</option><option>Virtual YouTuber</option><option>Musisi</option><option>Seniman</option><option>Cosplayer</option><option>Komunitas</option><option>Lainnya</option></select></div>
+          <div><label class="f" for="tz">Zona waktu</label>
+            <select id="tz"><option value="Asia/Jakarta">Asia/Jakarta</option><option value="Asia/Makassar">Asia/Makassar</option><option value="Asia/Jayapura">Asia/Jayapura</option></select></div>
+          <div><label class="f" for="cur">Mata uang</label>
+            <select id="cur" disabled><option>Rupiah (IDR)</option></select></div>
+        </div>
+        <label class="ck"><input type="checkbox" id="nsfw"> Memiliki konten sensitif (18+)</label>
         <label class="f" for="bio">Bio</label>
-        <textarea id="bio" rows="3" maxlength="200" placeholder="Ceritakan singkat tentang dirimu"></textarea>
-        <label class="f">Tombol nominal cepat</label>
-        <p class="mut" style="margin:0">Tampil di halaman dukunganmu. Maksimal 8, minimal Rp1.000.</p>
+        <textarea id="bio" rows="3" maxlength="200" placeholder="Ceritakan secara singkat tentang dirimu"></textarea>
+      </div></details>
+
+      <details class="card" open><summary>Jumlah hadiah cepat</summary><div class="bd">
+        <p class="mut" style="margin:0">Tombol nominal cepat yang tampil di halaman dukunganmu. Maksimal 8, minimal Rp1.000.</p>
         <div id="qk"></div>
-        <button class="ghost sm" id="qadd" type="button" style="margin-top:8px">Tambah nominal</button>
-        <div class="ok" id="msg"></div>
-        <button class="cta" id="save">Simpan profil</button>
+        <button class="ghost sm" id="qadd" type="button" style="margin-top:8px">+ Tambah</button>
+      </div></details>
+
+      <details class="card" open><summary>Sosial media</summary><div class="bd">
+        <p class="mut" style="margin:0">Tautan yang tampil di halaman dukunganmu. Maksimal 5, harus diawali https://.</p>
+        <div id="lk"></div>
+        <button class="ghost sm" id="ladd" type="button" style="margin-top:8px">+ Tambah</button>
+      </div></details>
+
+      <div class="ok" id="msg"></div>
+      <button class="cta" id="save">Simpan perubahan</button>
+
+      <details class="card" style="margin-top:14px"><summary>Danger</summary><div class="bd">
+        <p class="mut" style="margin:0">Menghapus akun bersifat permanen. Seluruh saldo harus sudah ditarik dan tidak boleh ada penarikan yang menunggu.</p>
+        <label class="f" for="dpw">Password</label>
+        <input id="dpw" type="password" autocomplete="current-password">
+        <div class="err" id="derr"></div>
+        <button class="danger" id="del">Hapus akun kreator</button>
       </div></details>
     </section>
 
@@ -120,7 +151,7 @@ if (!t) location.href = '/login';
 const H = { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' };
 const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
 const digits = v => String(v).replace(/\D/g, '');
-const fmt = ts => new Date(ts).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+const fmt = ts => new Date(ts).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: window._tz || undefined });
 function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
 function msg(sel, ok, text) { $(sel).className = ok ? 'ok' : 'err'; $(sel).textContent = text; }
 const valid = ['halaman', 'pemasukan', 'penarikan', 'overlay', 'keamanan'];
@@ -133,28 +164,73 @@ function tab(n, jump) {
 document.querySelectorAll('.mb button').forEach(b => b.onclick = () => tab(b.dataset.t, true));
 tab(valid.includes(localStorage.tab) ? localStorage.tab : 'halaman');
 
+function setAv(url, name) {
+  const ini = (name.trim()[0] || '?').toUpperCase();
+  ['#avbox', '#ua'].forEach(s => { const b = $(s); b.style.backgroundImage = url ? 'url(' + url + ')' : ''; b.textContent = url ? '' : ini; });
+}
+function setBn(url) { $('#bnbox').style.backgroundImage = url ? 'url(' + url + ')' : ''; }
+
+window._q = [];
+window._l = [];
+function rows(boxSel, arr, kind) {
+  const box = $(boxSel);
+  box.innerHTML = '';
+  arr.forEach((v, i) => {
+    const r = el('div', 'qr');
+    const inp = document.createElement('input');
+    if (kind === 'q') {
+      inp.inputMode = 'numeric';
+      inp.value = v ? Number(v).toLocaleString('id-ID') : '';
+      inp.oninput = () => { const d = digits(inp.value); inp.value = d ? Number(d).toLocaleString('id-ID') : ''; arr[i] = d ? parseInt(d, 10) : 0; };
+      r.append(el('span', 'cur', 'IDR'));
+    } else {
+      inp.placeholder = 'https://';
+      inp.value = v;
+      inp.oninput = () => { arr[i] = inp.value.trim(); };
+    }
+    const del = el('button', 'danger sm', 'Hapus');
+    del.type = 'button';
+    del.onclick = () => { arr.splice(i, 1); drawRows(); };
+    r.append(inp, del);
+    box.append(r);
+  });
+}
+function drawRows() {
+  rows('#qk', window._q, 'q');
+  rows('#lk', window._l, 'l');
+  $('#qadd').style.display = window._q.length >= 8 ? 'none' : '';
+  $('#ladd').style.display = window._l.length >= 5 ? 'none' : '';
+}
+$('#qadd').onclick = () => { window._q.push(0); drawRows(); };
+$('#ladd').onclick = () => { window._l.push(''); drawRows(); };
+
 const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
 async function load() {
   const r = await fetch('/api/dashboard', { headers: H });
   if (r.status === 401) { localStorage.removeItem('token'); location.href = '/login'; return; }
   const j = await r.json();
+  window._tz = j.tz;
   window._url = location.origin + '/' + j.user.username;
   window._ov = location.origin + '/overlay/' + j.overlayKey;
   $('#link').textContent = window._url; $('#link').href = window._url;
   $('#ov').textContent = window._ov; $('#ov').href = window._ov;
   $('#mypage').href = window._url;
   $('#hi').textContent = j.user.displayName;
-  $('#ua').textContent = (j.user.displayName.trim()[0] || '?').toUpperCase();
   $('#total').textContent = rp(j.balance);
   setAv(j.user.avatar, j.user.displayName);
   $('#fee').textContent = 'Potongan platform ' + j.feePct + '%';
   $('#wnote').textContent = 'Total dukungan ' + rp(j.gross) + ', potongan platform ' + j.feePct + '%, bersih ' + rp(j.earned) + '. Minimal tarik ' + rp(j.minWd) + '.';
   if (!window._f) {
     $('#dn').value = j.user.displayName;
+    $('#un').value = j.user.username;
     $('#bio').value = j.user.bio;
     $('#cat').value = j.user.category || '';
+    $('#tz').value = j.tz;
+    $('#nsfw').checked = !!j.user.nsfw;
     window._q = (j.user.quick || []).slice();
-    renderQ();
+    window._l = (j.user.links || []).slice();
+    setBn(j.user.banner);
+    drawRows();
     $('#wbank').value = j.payout.bank || '';
     $('#wacc').value = j.payout.account || '';
     $('#whold').value = j.payout.holder || '';
@@ -192,10 +268,44 @@ $('#opn').onclick = () => window.open(window._url, '_blank');
 $('#cp').onclick = () => copy(window._ov, $('#cp'));
 $('#wamt').oninput = () => { const d = digits($('#wamt').value); $('#wamt').value = d ? Number(d).toLocaleString('id-ID') : ''; };
 
+async function shrink(file, w, h) {
+  const bmp = await createImageBitmap(file);
+  let sw = bmp.width, sh = sw * h / w;
+  if (sh > bmp.height) { sh = bmp.height; sw = sh * w / h; }
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  c.getContext('2d').drawImage(bmp, (bmp.width - sw) / 2, (bmp.height - sh) / 2, sw, sh, 0, 0, w, h);
+  let q = 0.85, d = c.toDataURL('image/jpeg', q);
+  while (d.length > 80000 && q > 0.3) { q -= 0.15; d = c.toDataURL('image/jpeg', q); }
+  return d;
+}
+async function upload(e, api, w, h, apply) {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const d = await shrink(f, w, h);
+    const r = await fetch(api, { method: 'PUT', headers: H, body: JSON.stringify({ image: d }) });
+    const j = await r.json();
+    if (!r.ok) msg('#msg', false, j.error);
+    else { apply(j); msg('#msg', true, 'Foto diperbarui'); }
+  } catch (err) { msg('#msg', false, 'Gagal memproses gambar'); }
+  e.target.value = '';
+}
+$('#avb').onclick = () => $('#avf').click();
+$('#bnb').onclick = () => $('#bnf').click();
+$('#avf').onchange = e => upload(e, '/api/avatar', 256, 256, j => setAv(j.avatar, $('#dn').value));
+$('#bnf').onchange = e => upload(e, '/api/banner', 720, 240, j => setBn(j.banner));
+$('#avd').onclick = async () => { await fetch('/api/avatar', { method: 'DELETE', headers: H }); setAv('', $('#dn').value); };
+$('#bnd').onclick = async () => { await fetch('/api/banner', { method: 'DELETE', headers: H }); setBn(''); };
+
 $('#save').onclick = async () => {
-  await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value, category: $('#cat').value, quick: collectQ() }) });
-  msg('#msg', true, 'Profil tersimpan');
-  setTimeout(() => $('#msg').textContent = '', 2000);
+  const body = {
+    displayName: $('#dn').value, bio: $('#bio').value, category: $('#cat').value, tz: $('#tz').value,
+    nsfw: $('#nsfw').checked, quick: window._q.filter(n => n >= 1000), links: window._l.filter(x => x)
+  };
+  const r = await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify(body) });
+  msg('#msg', r.ok, r.ok ? 'Perubahan tersimpan' : 'Gagal menyimpan');
+  setTimeout(() => $('#msg').textContent = '', 2500);
   load();
 };
 $('#wsave').onclick = async () => {
@@ -215,62 +325,25 @@ $('#pgo').onclick = async () => {
   msg('#perr', r.ok, r.ok ? 'Password diganti' : j.error);
   if (r.ok) { $('#pold').value = ''; $('#pnew').value = ''; }
 };
+$('#del').onclick = async () => {
+  if (!confirm('Hapus akun kreator secara permanen?')) return;
+  const r = await fetch('/api/me', { method: 'DELETE', headers: H, body: JSON.stringify({ password: $('#dpw').value }) });
+  const j = await r.json();
+  if (!r.ok) { msg('#derr', false, j.error); return; }
+  localStorage.removeItem('token');
+  location.href = '/';
+};
 $('#out').onclick = async () => {
   await fetch('/api/logout', { method: 'POST', headers: H });
   localStorage.removeItem('token');
   location.href = '/login';
 };
-load();
-window._q = window._q || [];
-function setAv(url, name) {
-  const ini = (name.trim()[0] || '?').toUpperCase();
-  ['#avbox', '#ua'].forEach(s => { const b = $(s); b.style.backgroundImage = url ? 'url(' + url + ')' : ''; b.textContent = url ? '' : ini; });
-}
-function renderQ() {
-  const box = $('#qk');
-  box.innerHTML = '';
-  window._q.forEach((v, i) => {
-    const r = el('div', 'qr');
-    const inp = document.createElement('input');
-    inp.inputMode = 'numeric';
-    inp.value = v ? Number(v).toLocaleString('id-ID') : '';
-    inp.oninput = () => { const d = digits(inp.value); inp.value = d ? Number(d).toLocaleString('id-ID') : ''; window._q[i] = d ? parseInt(d, 10) : 0; };
-    const del = el('button', 'danger sm', 'Hapus');
-    del.type = 'button';
-    del.onclick = () => { window._q.splice(i, 1); renderQ(); };
-    r.append(inp, del);
-    box.append(r);
-  });
-  $('#qadd').style.display = window._q.length >= 8 ? 'none' : '';
-}
-function collectQ() { return window._q.filter(n => n >= 1000); }
-$('#qadd').onclick = () => { window._q.push(0); renderQ(); };
-$('#avb').onclick = () => $('#avf').click();
-$('#avf').onchange = async e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  try {
-    const bmp = await createImageBitmap(f);
-    const c = document.createElement('canvas');
-    c.width = c.height = 256;
-    const s = Math.min(bmp.width, bmp.height);
-    c.getContext('2d').drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
-    let q = 0.85, d = c.toDataURL('image/jpeg', q);
-    while (d.length > 80000 && q > 0.3) { q -= 0.15; d = c.toDataURL('image/jpeg', q); }
-    const r = await fetch('/api/avatar', { method: 'PUT', headers: H, body: JSON.stringify({ image: d }) });
-    const j = await r.json();
-    if (!r.ok) { msg('#msg', false, j.error); return; }
-    setAv(j.avatar, $('#dn').value);
-    msg('#msg', true, 'Foto diperbarui');
-  } catch (err) { msg('#msg', false, 'Gagal memproses gambar'); }
-  e.target.value = '';
-};
-$('#avd').onclick = async () => { await fetch('/api/avatar', { method: 'DELETE', headers: H }); setAv('', $('#dn').value); };
 function closeMenu() { $('#menu').hidden = true; $('#usr').setAttribute('aria-expanded', 'false'); }
 $('#usr').onclick = e => { e.stopPropagation(); const m = $('#menu'); m.hidden = !m.hidden; $('#usr').setAttribute('aria-expanded', String(!m.hidden)); };
 document.addEventListener('click', closeMenu);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 $('#mout').onclick = () => $('#out').click();
+load();
 setInterval(load, 15000);
 </script>
 </body>

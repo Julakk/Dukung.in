@@ -44,7 +44,7 @@ app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog', 'banner'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -73,7 +73,7 @@ function auth(req, res, next) {
   req.token = t;
   next();
 }
-const pub = u => ({ username: u.username, displayName: u.displayName, bio: u.bio || '', category: u.category || '', quick: u.quick || [5000, 10000, 25000, 50000], avatar: u.avatarV ? '/avatar/' + u.username + '?v=' + u.avatarV : '' });
+const pub = u => ({ username: u.username, displayName: u.displayName, bio: u.bio || '', category: u.category || '', quick: u.quick || [5000, 10000, 25000, 50000], avatar: u.avatarV ? '/avatar/' + u.username + '?v=' + u.avatarV : '', banner: u.bannerV ? '/banner/' + u.username + '?v=' + u.bannerV : '', nsfw: !!u.nsfw, links: u.links || [] });
 
 app.get('/api/ping', (req, res) => res.json({ ok: true, app: 'Dukung.in' }));
 
@@ -109,6 +109,9 @@ app.post('/api/logout', auth, (req, res) => {
 app.put('/api/me', auth, (req, res) => {
   req.user.displayName = String(req.body.displayName || '').trim().slice(0, 40) || req.user.username;
   req.user.bio = String(req.body.bio || '').trim().slice(0, 200);
+  req.user.nsfw = !!req.body.nsfw;
+  if (typeof req.body.tz === 'string') { try { new Intl.DateTimeFormat('id-ID', { timeZone: req.body.tz }); req.user.tz = req.body.tz; } catch (e) {} }
+  if (Array.isArray(req.body.links)) req.user.links = req.body.links.map(x => String(x).trim().slice(0, 200)).filter(x => /^https?:\/\/[^\s]+$/i.test(x)).slice(0, 5);
   if (CATS.includes(req.body.category)) req.user.category = req.body.category;
   if (Array.isArray(req.body.quick)) {
     const q = [...new Set(req.body.quick.map(n => parseInt(n, 10)).filter(n => n >= 1000 && n <= 10000000))].sort((a, b) => a - b).slice(0, 8);
@@ -275,7 +278,7 @@ function walletInfo(u) {
   const reserved = ws.filter(w => w.status !== 'rejected').reduce((s, w) => s + w.amount, 0);
   return {
     gross, feePct: FEE_PCT, earned: gross - fee, balance: gross - fee - reserved,
-    minWd: MIN_WD, payout: u.payout || {},
+    minWd: MIN_WD, payout: u.payout || {}, tz: u.tz || 'Asia/Jakarta',
     withdrawals: ws.slice().sort((a, b) => b.createdAt - a.createdAt).slice(0, 20)
   };
 }
@@ -468,6 +471,48 @@ app.get('/api/status', async (req, res) => {
 });
 app.get('/status', (req, res) => res.sendFile(path.join(__dirname, 'public', 'status.html')));
 app.get('/changelog', (req, res) => res.sendFile(path.join(__dirname, 'public', 'changelog.html')));
+
+const BUP = path.join(__dirname, 'uploads', 'banners');
+
+app.put('/api/banner', auth, (req, res) => {
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.image || ''));
+  if (!m) return res.status(400).json({ error: 'Format gambar tidak valid' });
+  const buf = Buffer.from(m[1], 'base64');
+  if (buf.length > 90000 || buf[0] !== 0xff || buf[1] !== 0xd8) return res.status(400).json({ error: 'Gambar terlalu besar atau bukan JPEG' });
+  fsx.mkdirSync(BUP, { recursive: true });
+  fsx.writeFileSync(path.join(BUP, req.user.id + '.jpg'), buf);
+  req.user.bannerV = Date.now();
+  save();
+  res.json({ banner: '/banner/' + req.user.username + '?v=' + req.user.bannerV });
+});
+
+app.delete('/api/banner', auth, (req, res) => {
+  try { fsx.unlinkSync(path.join(BUP, req.user.id + '.jpg')); } catch (e) {}
+  delete req.user.bannerV;
+  save();
+  res.json({ ok: true });
+});
+
+app.get('/banner/:username', (req, res) => {
+  const u = data.users.find(x => x.username === req.params.username.toLowerCase());
+  const f = u && path.join(BUP, u.id + '.jpg');
+  if (!f || !fsx.existsSync(f)) return res.status(404).end();
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.type('image/jpeg').sendFile(f);
+});
+
+app.delete('/api/me', auth, (req, res) => {
+  if (!verify(String(req.body.password || ''), req.user.password)) return res.status(400).json({ error: 'Password salah' });
+  if (walletInfo(req.user).balance > 0 || data.withdrawals.some(x => x.userId === req.user.id && x.status === 'pending'))
+    return res.status(400).json({ error: 'Tarik seluruh saldo dan tunggu penarikan selesai dulu' });
+  const id = req.user.id;
+  for (const t of Object.keys(data.sessions)) if (data.sessions[t] === id) delete data.sessions[t];
+  data.users = data.users.filter(u => u.id !== id);
+  try { fsx.unlinkSync(path.join(UP, id + '.jpg')); } catch (e) {}
+  try { fsx.unlinkSync(path.join(BUP, id + '.jpg')); } catch (e) {}
+  save();
+  res.json({ ok: true });
+});
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

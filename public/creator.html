@@ -9,11 +9,17 @@
 <link rel="stylesheet" href="/dash.css">
 </head>
 <body class="dk">
+<div id="gate" style="display:none;position:fixed;inset:0;background:#0b1620;z-index:50;align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center">
+  <h2>Konten dewasa 18+</h2>
+  <p class="mut" style="max-width:26em">Halaman ini ditandai berisi konten untuk usia 18 tahun ke atas.</p>
+  <div style="display:flex;gap:10px"><button class="cta" id="g18" style="width:auto;padding:12px 24px">Saya 18+, lanjutkan</button><button class="ghost" style="width:auto;padding:12px 24px" onclick="location.href='/'">Kembali</button></div>
+</div>
 <div class="top"><div class="in">
   <div class="av" id="av">?</div>
   <h1 id="name">Memuat...</h1>
   <span class="pill" id="cat" style="display:none"></span>
   <p class="lead" id="bio"></p>
+  <div class="sls" id="sls"></div>
 </div></div>
 <div class="sheet">
   <div id="box">
@@ -68,9 +74,18 @@ fetch('/api/creator/' + username).then(r => r.json()).then(j => {
   if (j.avatar) { $('#av').style.backgroundImage = 'url(' + j.avatar + ')'; $('#av').textContent = ''; }
   else $('#av').textContent = (j.displayName.trim()[0] || '?').toUpperCase();
   if (j.category) { $('#cat').textContent = j.category; $('#cat').style.display = 'inline-block'; }
+  if (j.banner) { const tp = document.querySelector('.top'); tp.classList.add('hasb'); tp.style.backgroundImage = 'linear-gradient(rgba(6,33,58,.6),rgba(6,33,58,.6)),url(' + j.banner + ')'; }
+  (j.links || []).forEach(u => {
+    const a = document.createElement('a');
+    a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer nofollow'; a.className = 'sl';
+    try { a.textContent = new URL(u).hostname.replace(/^www\./, ''); } catch (e) { a.textContent = u; }
+    $('#sls').append(a);
+  });
+  if (j.nsfw && !sessionStorage['ok18:' + username]) $('#gate').style.display = 'flex';
   chips(j.quick);
   document.title = j.displayName + ' - Dukung.in';
 });
+$('#g18').onclick = () => { sessionStorage['ok18:' + username] = 1; $('#gate').style.display = 'none'; };
 $('#a').oninput = sync;
 
 if (new URLSearchParams(location.search).has('thanks')) { $('#box').style.display = 'none'; $('#done').style.display = 'block'; }

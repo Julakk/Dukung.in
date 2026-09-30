@@ -64,3 +64,16 @@ details[open]>summary::after{transform:rotate(-135deg)}
 .cc p{margin:6px 0 0;color:#8aa4bb;font-size:13px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cats{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px}
 .cats .chip{flex:none;width:auto;margin:0;padding:8px 14px;font-size:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.ir{display:flex;align-items:center;gap:12px;margin:6px 0 14px}
+.ia{margin-left:auto;display:flex;gap:6px}
+.bnbox{width:120px;height:40px;border-radius:8px;background:#0f1c27 center/cover;border:1px solid #213445;flex:none}
+.ck{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px}
+.dk .ck input{width:auto;margin:0;padding:0}
+.dk input:disabled,.dk select:disabled{opacity:.6}
+.cur{color:#ffd166;font-weight:800;align-self:center}
+.sls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dk .sl{background:#06213a;color:#e6f1fb;padding:6px 14px;border-radius:999px;font-weight:700;text-decoration:none;font-size:13px;word-break:normal}
+.dk .top.hasb{color:#fff;background-size:cover;background-position:center}
+.dk .top.hasb .lead{color:#e6f1fb}
