@@ -36,10 +36,21 @@
         <div class="acts"><button class="cta" id="cpl">Salin link</button><button class="ghost" id="opn">Buka di tab baru</button></div>
       </div></details>
       <details class="card" open><summary>Profil</summary><div class="bd">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:4px">
+          <div class="avbox" id="avbox">?</div>
+          <div><button class="cta sm" id="avb" type="button">Unggah foto</button> <button class="ghost sm" id="avd" type="button">Hapus</button></div>
+          <input type="file" id="avf" accept="image/*" hidden>
+        </div>
         <label class="f" for="dn">Nama tampilan</label>
         <input id="dn">
+        <label class="f" for="cat">Kategori</label>
+        <select id="cat"><option value="">Pilih kategori</option><option>Streamer</option><option>Content Creator</option><option>Virtual YouTuber</option><option>Musisi</option><option>Seniman</option><option>Cosplayer</option><option>Komunitas</option><option>Lainnya</option></select>
         <label class="f" for="bio">Bio</label>
         <textarea id="bio" rows="3" maxlength="200" placeholder="Ceritakan singkat tentang dirimu"></textarea>
+        <label class="f">Tombol nominal cepat</label>
+        <p class="mut" style="margin:0">Tampil di halaman dukunganmu. Maksimal 8, minimal Rp1.000.</p>
+        <div id="qk"></div>
+        <button class="ghost sm" id="qadd" type="button" style="margin-top:8px">Tambah nominal</button>
         <div class="ok" id="msg"></div>
         <button class="cta" id="save">Simpan profil</button>
       </div></details>
@@ -124,11 +135,15 @@ async function load() {
   $('#hi').textContent = j.user.displayName;
   $('#ua').textContent = (j.user.displayName.trim()[0] || '?').toUpperCase();
   $('#total').textContent = rp(j.balance);
+  setAv(j.user.avatar, j.user.displayName);
   $('#fee').textContent = 'Potongan platform ' + j.feePct + '%';
   $('#wnote').textContent = 'Total dukungan ' + rp(j.gross) + ', potongan platform ' + j.feePct + '%, bersih ' + rp(j.earned) + '. Minimal tarik ' + rp(j.minWd) + '.';
   if (!window._f) {
     $('#dn').value = j.user.displayName;
     $('#bio').value = j.user.bio;
+    $('#cat').value = j.user.category || '';
+    window._q = (j.user.quick || []).slice();
+    renderQ();
     $('#wbank').value = j.payout.bank || '';
     $('#wacc').value = j.payout.account || '';
     $('#whold').value = j.payout.holder || '';
@@ -167,7 +182,7 @@ $('#cp').onclick = () => copy(window._ov, $('#cp'));
 $('#wamt').oninput = () => { const d = digits($('#wamt').value); $('#wamt').value = d ? Number(d).toLocaleString('id-ID') : ''; };
 
 $('#save').onclick = async () => {
-  await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value }) });
+  await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value, category: $('#cat').value, quick: collectQ() }) });
   msg('#msg', true, 'Profil tersimpan');
   setTimeout(() => $('#msg').textContent = '', 2000);
   load();
@@ -195,6 +210,51 @@ $('#out').onclick = async () => {
   location.href = '/login';
 };
 load();
+window._q = window._q || [];
+function setAv(url, name) {
+  const ini = (name.trim()[0] || '?').toUpperCase();
+  ['#avbox', '#ua'].forEach(s => { const b = $(s); b.style.backgroundImage = url ? 'url(' + url + ')' : ''; b.textContent = url ? '' : ini; });
+}
+function renderQ() {
+  const box = $('#qk');
+  box.innerHTML = '';
+  window._q.forEach((v, i) => {
+    const r = el('div', 'qr');
+    const inp = document.createElement('input');
+    inp.inputMode = 'numeric';
+    inp.value = v ? Number(v).toLocaleString('id-ID') : '';
+    inp.oninput = () => { const d = digits(inp.value); inp.value = d ? Number(d).toLocaleString('id-ID') : ''; window._q[i] = d ? parseInt(d, 10) : 0; };
+    const del = el('button', 'danger sm', 'Hapus');
+    del.type = 'button';
+    del.onclick = () => { window._q.splice(i, 1); renderQ(); };
+    r.append(inp, del);
+    box.append(r);
+  });
+  $('#qadd').style.display = window._q.length >= 8 ? 'none' : '';
+}
+function collectQ() { return window._q.filter(n => n >= 1000); }
+$('#qadd').onclick = () => { window._q.push(0); renderQ(); };
+$('#avb').onclick = () => $('#avf').click();
+$('#avf').onchange = async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const bmp = await createImageBitmap(f);
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const s = Math.min(bmp.width, bmp.height);
+    c.getContext('2d').drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
+    let q = 0.85, d = c.toDataURL('image/jpeg', q);
+    while (d.length > 80000 && q > 0.3) { q -= 0.15; d = c.toDataURL('image/jpeg', q); }
+    const r = await fetch('/api/avatar', { method: 'PUT', headers: H, body: JSON.stringify({ image: d }) });
+    const j = await r.json();
+    if (!r.ok) { msg('#msg', false, j.error); return; }
+    setAv(j.avatar, $('#dn').value);
+    msg('#msg', true, 'Foto diperbarui');
+  } catch (err) { msg('#msg', false, 'Gagal memproses gambar'); }
+  e.target.value = '';
+};
+$('#avd').onclick = async () => { await fetch('/api/avatar', { method: 'DELETE', headers: H }); setAv('', $('#dn').value); };
 setInterval(load, 15000);
 </script>
 </body>

@@ -6,11 +6,13 @@
 <meta name="theme-color" content="#37a2ea">
 <title>Dukung - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
 </head>
-<body>
+<body class="dk">
 <div class="top"><div class="in">
   <div class="av" id="av">?</div>
   <h1 id="name">Memuat...</h1>
+  <span class="pill" id="cat" style="display:none"></span>
   <p class="lead" id="bio"></p>
 </div></div>
 <div class="sheet">
@@ -39,28 +41,35 @@ const username = location.pathname.slice(1).replace(/\/$/, '').toLowerCase();
 const J = { 'Content-Type': 'application/json' };
 const digits = v => String(v).replace(/\D/g, '');
 
-fetch('/api/creator/' + username).then(r => r.json()).then(j => {
-  if (j.error) { $('#name').textContent = 'Kreator tidak ditemukan'; $('#box').style.display = 'none'; return; }
-  $('#name').textContent = j.displayName;
-  $('#bio').textContent = j.bio;
-  $('#av').textContent = (j.displayName.trim()[0] || '?').toUpperCase();
-  document.title = j.displayName + ' - Dukung.in';
-});
-
 function sync() {
   const d = digits($('#a').value);
   $('#a').value = d ? Number(d).toLocaleString('id-ID') : '';
   $('#go').textContent = d ? 'Dukung Rp' + Number(d).toLocaleString('id-ID') : 'Dukung';
   document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.v === d));
 }
-[5000, 10000, 25000, 50000].forEach(v => {
-  const b = document.createElement('button');
-  b.className = 'chip';
-  b.type = 'button';
-  b.dataset.v = String(v);
-  b.textContent = 'Rp' + v.toLocaleString('id-ID');
-  b.onclick = () => { $('#a').value = v; sync(); };
-  $('#chips').append(b);
+function chips(list) {
+  $('#chips').innerHTML = '';
+  list.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.dataset.v = String(v);
+    b.textContent = 'Rp' + Number(v).toLocaleString('id-ID');
+    b.onclick = () => { $('#a').value = v; sync(); };
+    $('#chips').append(b);
+  });
+}
+chips([5000, 10000, 25000, 50000]);
+
+fetch('/api/creator/' + username).then(r => r.json()).then(j => {
+  if (j.error) { $('#name').textContent = 'Kreator tidak ditemukan'; $('#box').style.display = 'none'; return; }
+  $('#name').textContent = j.displayName;
+  $('#bio').textContent = j.bio;
+  if (j.avatar) { $('#av').style.backgroundImage = 'url(' + j.avatar + ')'; $('#av').textContent = ''; }
+  else $('#av').textContent = (j.displayName.trim()[0] || '?').toUpperCase();
+  if (j.category) { $('#cat').textContent = j.category; $('#cat').style.display = 'inline-block'; }
+  chips(j.quick);
+  document.title = j.displayName + ' - Dukung.in';
 });
 $('#a').oninput = sync;
 

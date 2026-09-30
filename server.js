@@ -44,7 +44,7 @@ app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -73,7 +73,7 @@ function auth(req, res, next) {
   req.token = t;
   next();
 }
-const pub = u => ({ username: u.username, displayName: u.displayName, bio: u.bio || '' });
+const pub = u => ({ username: u.username, displayName: u.displayName, bio: u.bio || '', category: u.category || '', quick: u.quick || [5000, 10000, 25000, 50000], avatar: u.avatarV ? '/avatar/' + u.username + '?v=' + u.avatarV : '' });
 
 app.get('/api/ping', (req, res) => res.json({ ok: true, app: 'Dukung.in' }));
 
@@ -109,6 +109,11 @@ app.post('/api/logout', auth, (req, res) => {
 app.put('/api/me', auth, (req, res) => {
   req.user.displayName = String(req.body.displayName || '').trim().slice(0, 40) || req.user.username;
   req.user.bio = String(req.body.bio || '').trim().slice(0, 200);
+  if (CATS.includes(req.body.category)) req.user.category = req.body.category;
+  if (Array.isArray(req.body.quick)) {
+    const q = [...new Set(req.body.quick.map(n => parseInt(n, 10)).filter(n => n >= 1000 && n <= 10000000))].sort((a, b) => a - b).slice(0, 8);
+    if (q.length >= 1) req.user.quick = q;
+  }
   save();
   res.json(pub(req.user));
 });
@@ -390,6 +395,36 @@ setInterval(() => {
 }, 3600000).unref();
 
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+
+const CATS = ['Streamer', 'Content Creator', 'Virtual YouTuber', 'Musisi', 'Seniman', 'Cosplayer', 'Komunitas', 'Lainnya'];
+const UP = path.join(__dirname, 'uploads', 'avatars');
+
+app.put('/api/avatar', auth, (req, res) => {
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.image || ''));
+  if (!m) return res.status(400).json({ error: 'Format gambar tidak valid' });
+  const buf = Buffer.from(m[1], 'base64');
+  if (buf.length > 90000 || buf[0] !== 0xff || buf[1] !== 0xd8) return res.status(400).json({ error: 'Gambar terlalu besar atau bukan JPEG' });
+  fsx.mkdirSync(UP, { recursive: true });
+  fsx.writeFileSync(path.join(UP, req.user.id + '.jpg'), buf);
+  req.user.avatarV = Date.now();
+  save();
+  res.json({ avatar: '/avatar/' + req.user.username + '?v=' + req.user.avatarV });
+});
+
+app.delete('/api/avatar', auth, (req, res) => {
+  try { fsx.unlinkSync(path.join(UP, req.user.id + '.jpg')); } catch (e) {}
+  delete req.user.avatarV;
+  save();
+  res.json({ ok: true });
+});
+
+app.get('/avatar/:username', (req, res) => {
+  const u = data.users.find(x => x.username === req.params.username.toLowerCase());
+  const f = u && path.join(UP, u.id + '.jpg');
+  if (!f || !fsx.existsSync(f)) return res.status(404).end();
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.type('image/jpeg').sendFile(f);
+});
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

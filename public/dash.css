@@ -40,3 +40,12 @@ details[open]>summary::after{transform:rotate(-135deg)}
 .mb button{margin:0;text-align:left;padding:12px 14px}
 .mb button.on{background:#37a2ea;color:#06213a;border-bottom-color:#2379b3}
 @media (min-width:820px){.pg{grid-template-columns:230px minmax(0,1fr)}.ban{grid-column:1/-1}.mb{grid-template-columns:1fr}}
+.dk select{width:100%;padding:13px 14px;border:1px solid #213445;border-radius:8px;background:#0f1c27;color:#e6f1fb;font:inherit}
+.avbox,.ua,.dk .av{background-size:cover;background-position:center}
+.avbox{width:72px;height:72px;border-radius:50%;background-color:#37a2ea;color:#06213a;display:grid;place-items:center;font-weight:800;font-size:30px;flex:none}
+.qr{display:flex;gap:8px;margin-top:8px}
+.qr input{flex:1}
+.qr button{margin:0;width:auto}
+.dk .chip{background:#12222f;color:#e6f1fb;border:1.5px solid #213445;border-bottom:4px solid #122433;border-radius:12px}
+.dk .chip.on{background:#37a2ea;color:#06213a;border-color:#37a2ea;border-bottom-color:#2379b3}
+.dk .top .pill{background:#06213a;color:#e6f1fb;display:inline-block;margin-top:8px}
