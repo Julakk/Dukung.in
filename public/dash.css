@@ -77,3 +77,12 @@ details[open]>summary::after{transform:rotate(-135deg)}
 .dk .sl{background:#06213a;color:#e6f1fb;padding:6px 14px;border-radius:999px;font-weight:700;text-decoration:none;font-size:13px;word-break:normal}
 .dk .top.hasb{color:#fff;background-size:cover;background-position:center}
 .dk .top.hasb .lead{color:#e6f1fb}
+.dk input[type=color]{padding:4px;height:44px}
+.bars{display:flex;gap:4px;align-items:flex-end;height:120px;margin-top:10px}
+.bars i{flex:1;background:#37a2ea;border-radius:4px 4px 0 0;min-height:2px}
+.stt{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stt div{background:#0f1c27;border:1px solid #213445;border-radius:10px;padding:12px}
+.stt b{display:block;font-size:20px}
+.pv{border-radius:12px;padding:16px;text-align:center;font-weight:800;margin:12px 0}
+.lnk{word-break:break-all}
+textarea.tall{min-height:140px}

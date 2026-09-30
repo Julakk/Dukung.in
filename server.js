@@ -42,6 +42,17 @@ app.use('/api/withdraw', limiter('withdraw', 10, 60 * 60000));
 app.use('/api/creator', limiter('support', 30, 10 * 60000));
 app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
 
+app.use('/api/creator/:username/support', (req, res, next) => {
+  const u = data.users.find(x => x.username === String(req.params.username).toLowerCase());
+  if (req.method !== 'POST' || !u || !u.mod) return next();
+  const nm = String(req.body.name || '').toLowerCase().trim();
+  if (nm && (u.mod.names || []).some(x => nm.includes(x))) return res.status(400).json({ error: 'Nama ini tidak diperbolehkan' });
+  const clean = s => (u.mod.words || []).reduce((t, w) => t.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), m => '*'.repeat(m.length)), String(s || ''));
+  req.body.name = clean(req.body.name);
+  req.body.message = clean(req.body.message);
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog', 'banner'];
@@ -513,6 +524,8 @@ app.delete('/api/me', auth, (req, res) => {
   save();
   res.json({ ok: true });
 });
+
+require('./features')(app, { data, save, auth, getKey });
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget - Dukung.in</title>
+<style>
+html,body{margin:0;background:transparent;font-family:system-ui,sans-serif;overflow:hidden;color:#06213a}
+.w{margin:12px auto;width:min(460px,94%);background:#37a2ea;border:2px solid #fff;border-radius:16px;padding:16px 18px;box-sizing:border-box}
+h1{margin:0 0 10px;font-size:22px;text-align:center}
+.r{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-weight:700}
+.r span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar{height:16px;background:rgba(6,33,58,.25);border-radius:999px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:#fff;border-radius:999px;transition:width .6s}
+.tk{overflow:hidden;white-space:nowrap;font-weight:800;font-size:22px;padding:10px 0}
+.tk span{display:inline-block;padding-left:100%;animation:mv linear infinite}
+@keyframes mv{to{transform:translateX(-100%)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const p = location.pathname.split('/');
+const key = p[2], type = p[3];
+const root = document.getElementById('root');
+const rp = n => 'Rp' + Number(n).toLocaleString('id-ID');
+let last = '';
+function mk(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+function draw(j) {
+  if (type === 'ticker') {
+    if (!j.cfg.on || !j.cfg.text) { root.textContent = ''; last = ''; return; }
+    if (j.cfg.text === last) return;
+    last = j.cfg.text;
+    root.textContent = '';
+    const w = mk('div', 'w tk'), s = mk('span', '', j.cfg.text);
+    s.style.animationDuration = Math.max(8, j.cfg.text.length * 0.25) + 's';
+    w.append(s);
+    root.append(w);
+    return;
+  }
+  root.textContent = '';
+  const w = mk('div', 'w');
+  if (type === 'leaderboard') {
+    w.append(mk('h1', '', j.cfg.title));
+    if (!j.rows.length) w.append(mk('div', 'r', 'Belum ada dukungan'));
+    j.rows.forEach((x, i) => {
+      const r = mk('div', 'r');
+      r.append(mk('span', '', (i + 1) + '. ' + x.name));
+      if (j.cfg.showAmt) r.append(mk('span', '', rp(x.amount)));
+      w.append(r);
+    });
+  } else {
+    if (!j.cfg.on) return;
+    const pct = Math.min(100, j.current / j.cfg.target * 100);
+    w.append(mk('h1', '', j.cfg.title));
+    const bar = mk('div', 'bar'), fill = mk('i');
+    fill.style.width = pct + '%';
+    bar.append(fill);
+    w.append(bar);
+    const r = mk('div', 'r');
+    r.append(mk('span', '', rp(j.current) + ' / ' + rp(j.cfg.target)), mk('span', '', Math.floor(pct) + '%'));
+    w.append(r);
+  }
+  root.append(w);
+}
+async function load() {
+  try {
+    const r = await fetch('/api/overlay/' + key + '/widget/' + type, { cache: 'no-store' });
+    if (r.ok) draw(await r.json());
+  } catch (e) {}
+}
+load();
+setInterval(load, type === 'ticker' ? 30000 : 5000);
+</script>
+</body>
+</html>
