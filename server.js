@@ -44,7 +44,7 @@ app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -425,6 +425,18 @@ app.get('/avatar/:username', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=86400');
   res.type('image/jpeg').sendFile(f);
 });
+
+app.get('/api/explore', (req, res) => {
+  const q = String(req.query.q || '').toLowerCase().trim().slice(0, 40);
+  const cat = String(req.query.cat || '');
+  const list = data.users
+    .filter(u => (!cat || u.category === cat) && (!q || u.username.includes(q) || u.displayName.toLowerCase().includes(q)))
+    .slice(-60).reverse()
+    .map(u => { const p = pub(u); return { username: p.username, displayName: p.displayName, bio: p.bio, category: p.category, avatar: p.avatar }; });
+  res.json(list);
+});
+app.get('/explore', (req, res) => res.sendFile(path.join(__dirname, 'public', 'explore.html')));
+app.get('/faq', (req, res) => res.sendFile(path.join(__dirname, 'public', 'faq.html')));
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

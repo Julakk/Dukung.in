@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1620">
+<title>FAQ - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
+</head>
+<body class="dk">
+<header class="hd">
+  <a class="logo" href="/">Dukung.in</a>
+  <a class="usr" id="nb" href="/login" style="padding:9px 18px">Masuk</a>
+</header>
+<main class="pg">
+  <div><h1>Pertanyaan yang sering muncul</h1></div>
+  <div>
+    <details class="card"><summary>Apa itu Dukung.in?</summary><div class="bd">Platform untuk kreator menerima dukungan dari penonton. Kreator punya halaman dukungan sendiri, notifikasi di stream lewat overlay OBS, dan saldo yang bisa ditarik.</div></details>
+    <details class="card"><summary>Bagaimana cara mulai?</summary><div class="bd">Buat akun, lengkapi profil di dashboard, lalu bagikan link halaman dukunganmu ke penonton.</div></details>
+    <details class="card"><summary>Berapa potongan platform?</summary><div class="bd">Saat ini 10% dari setiap dukungan. Nominal itu sudah dihitung otomatis di saldo yang kamu lihat di dashboard.</div></details>
+    <details class="card"><summary>Bagaimana cara menarik dana?</summary><div class="bd">Simpan rekening bank atau e-wallet di menu Penarikan, lalu ajukan jumlah penarikan. Admin akan memproses dan mentransfer ke rekeningmu. Saat ini minimal penarikan Rp50.000.</div></details>
+    <details class="card"><summary>Metode pembayaran apa yang tersedia untuk pendukung?</summary><div class="bd">Pembayaran lewat QRIS, yang bisa dibayar dari e-wallet atau mobile banking.</div></details>
+    <details class="card"><summary>Bagaimana memasang overlay di OBS?</summary><div class="bd">Buka dashboard, menu Overlay OBS, lalu salin link-nya. Di OBS tambahkan sumber Browser, tempel link itu, dan atur lebar 800 dan tinggi 300. Jangan bagikan link ini ke siapa pun.</div></details>
+    <details class="card"><summary>Saya lupa password. Bagaimana?</summary><div class="bd">Minta link reset password ke admin Dukung.in. Link berlaku 1 jam, dan setelah dipakai kamu bisa membuat password baru.</div></details>
+  </div>
+</main>
+<script>
+if (localStorage.token) { const n = document.getElementById('nb'); n.textContent = 'Dashboard'; n.href = '/dashboard'; }
+</script>
+</body>
+</html>

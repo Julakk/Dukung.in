@@ -11,7 +11,16 @@
 <body class="dk">
 <header class="hd">
   <a class="logo" href="/dashboard">Dukung.in</a>
-  <a class="usr" id="usr" href="#" target="_blank"><span class="ua" id="ua">?</span><span id="hi"></span></a>
+  <div class="dd">
+    <button class="usr" id="usr" type="button" aria-haspopup="true" aria-expanded="false"><span class="ua" id="ua">?</span><span id="hi"></span></button>
+    <nav class="menu" id="menu" hidden>
+      <a href="/dashboard">Dashboard</a>
+      <a href="#" id="mypage" target="_blank">Halaman saya</a>
+      <a href="/explore">Temukan kreator</a>
+      <a href="/faq">FAQ</a>
+      <button type="button" id="mout" class="mo">Keluar</button>
+    </nav>
+  </div>
 </header>
 <main class="pg">
   <div class="ban">
@@ -131,7 +140,7 @@ async function load() {
   window._ov = location.origin + '/overlay/' + j.overlayKey;
   $('#link').textContent = window._url; $('#link').href = window._url;
   $('#ov').textContent = window._ov; $('#ov').href = window._ov;
-  $('#usr').href = window._url;
+  $('#mypage').href = window._url;
   $('#hi').textContent = j.user.displayName;
   $('#ua').textContent = (j.user.displayName.trim()[0] || '?').toUpperCase();
   $('#total').textContent = rp(j.balance);
@@ -255,6 +264,11 @@ $('#avf').onchange = async e => {
   e.target.value = '';
 };
 $('#avd').onclick = async () => { await fetch('/api/avatar', { method: 'DELETE', headers: H }); setAv('', $('#dn').value); };
+function closeMenu() { $('#menu').hidden = true; $('#usr').setAttribute('aria-expanded', 'false'); }
+$('#usr').onclick = e => { e.stopPropagation(); const m = $('#menu'); m.hidden = !m.hidden; $('#usr').setAttribute('aria-expanded', String(!m.hidden)); };
+document.addEventListener('click', closeMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+$('#mout').onclick = () => $('#out').click();
 setInterval(load, 15000);
 </script>
 </body>

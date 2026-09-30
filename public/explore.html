@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1620">
+<title>Temukan kreator - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
+</head>
+<body class="dk">
+<header class="hd">
+  <a class="logo" href="/">Dukung.in</a>
+  <a class="usr" id="nb" href="/login" style="padding:9px 18px">Masuk</a>
+</header>
+<main class="pg">
+  <div>
+    <h1>Temukan kreator</h1>
+    <p class="mut">Cari kreator favoritmu dan kirim dukungan.</p>
+    <input id="q" placeholder="Cari nama atau username" style="margin-top:12px">
+    <div class="cats" id="cats"></div>
+  </div>
+  <div class="gr" id="gr"></div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const CATS = ['Semua', 'Streamer', 'Content Creator', 'Virtual YouTuber', 'Musisi', 'Seniman', 'Cosplayer', 'Komunitas', 'Lainnya'];
+let cat = '', tm;
+if (localStorage.token) { $('#nb').textContent = 'Dashboard'; $('#nb').href = '/dashboard'; }
+function chips() {
+  const box = $('#cats');
+  box.innerHTML = '';
+  CATS.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + ((c === 'Semua' ? '' : c) === cat ? ' on' : '');
+    b.textContent = c;
+    b.onclick = () => { cat = c === 'Semua' ? '' : c; chips(); load(); };
+    box.append(b);
+  });
+}
+async function load() {
+  const r = await fetch('/api/explore?q=' + encodeURIComponent($('#q').value) + '&cat=' + encodeURIComponent(cat));
+  const list = await r.json();
+  const g = $('#gr');
+  g.innerHTML = '';
+  if (!list.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'Belum ada kreator yang cocok.'; g.append(e); return; }
+  list.forEach(u => {
+    const a = document.createElement('a');
+    a.className = 'cc';
+    a.href = '/' + u.username;
+    const v = document.createElement('div');
+    v.className = 'cav';
+    if (u.avatar) v.style.backgroundImage = 'url(' + u.avatar + ')';
+    else v.textContent = (u.displayName.trim()[0] || '?').toUpperCase();
+    const n = document.createElement('b');
+    n.textContent = u.displayName;
+    a.append(v, n);
+    if (u.category) { const p = document.createElement('span'); p.className = 'pill'; p.textContent = u.category; a.append(p); }
+    if (u.bio) { const p = document.createElement('p'); p.textContent = u.bio; a.append(p); }
+    g.append(a);
+  });
+}
+$('#q').oninput = () => { clearTimeout(tm); tm = setTimeout(load, 250); };
+chips();
+load();
+</script>
+</body>
+</html>
