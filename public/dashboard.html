@@ -2,83 +2,95 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#37a2ea">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1620">
 <title>Dashboard - Dukung.in</title>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
 </head>
-<body>
-<div class="top"><div class="in">
-  <div class="sub">Halo, <span id="hi"></span></div>
-  <div class="sub" style="margin-top:14px">Saldo tersedia</div>
-  <div class="bal" id="total">Rp0</div>
-</div></div>
-<div class="sheet">
-  <section class="pane on" id="p-dukungan">
-    <div class="card">
-      <h2>Link dukunganmu</h2>
-      <a id="link" target="_blank"></a>
-      <div style="margin-top:12px"><button class="sm cta" id="cpl">Salin link</button></div>
-    </div>
-    <div class="card"><h2>Dukungan masuk</h2><div id="list"></div></div>
-  </section>
+<body class="dk">
+<header class="hd">
+  <a class="logo" href="/dashboard">Dukung.in</a>
+  <a class="usr" id="usr" href="#" target="_blank"><span class="ua" id="ua">?</span><span id="hi"></span></a>
+</header>
+<main class="pg">
+  <div class="ban">
+    <div><div class="sub">Saldo tersedia</div><div class="bal" id="total">Rp0</div></div>
+    <div class="sub" id="fee"></div>
+  </div>
+  <aside>
+    <details class="card" open style="margin-bottom:14px"><summary>Kreator</summary><div class="bd"><div class="mb">
+      <button data-t="halaman">Halaman</button>
+      <button data-t="pemasukan">Pemasukan</button>
+      <button data-t="penarikan">Penarikan</button>
+    </div></div></details>
+    <details class="card" open><summary>Pengaturan</summary><div class="bd"><div class="mb">
+      <button data-t="overlay">Overlay OBS</button>
+      <button data-t="keamanan">Keamanan</button>
+    </div></div></details>
+  </aside>
+  <div class="ct">
+    <section class="pane on" id="p-halaman">
+      <details class="card" open><summary>Link halaman</summary><div class="bd">
+        <a id="link" target="_blank"></a>
+        <div class="acts"><button class="cta" id="cpl">Salin link</button><button class="ghost" id="opn">Buka di tab baru</button></div>
+      </div></details>
+      <details class="card" open><summary>Profil</summary><div class="bd">
+        <label class="f" for="dn">Nama tampilan</label>
+        <input id="dn">
+        <label class="f" for="bio">Bio</label>
+        <textarea id="bio" rows="3" maxlength="200" placeholder="Ceritakan singkat tentang dirimu"></textarea>
+        <div class="ok" id="msg"></div>
+        <button class="cta" id="save">Simpan profil</button>
+      </div></details>
+    </section>
 
-  <section class="pane" id="p-dompet">
-    <div class="card">
-      <h2>Tarik dana</h2>
-      <p class="mut" id="wnote"></p>
-      <label class="f" for="wamt">Jumlah penarikan</label>
-      <input id="wamt" type="text" inputmode="numeric" placeholder="Contoh: 100.000">
-      <div id="werr" class="err"></div>
-      <button class="cta" id="wgo">Tarik dana</button>
-    </div>
-    <div class="card">
-      <h2>Rekening penerima</h2>
-      <label class="f" for="wbank">Bank atau e-wallet</label>
-      <input id="wbank" placeholder="Contoh: BCA, DANA">
-      <label class="f" for="wacc">Nomor rekening atau HP</label>
-      <input id="wacc" inputmode="numeric">
-      <label class="f" for="whold">Nama pemilik</label>
-      <input id="whold">
-      <div id="rerr" class="err"></div>
-      <button class="ghost" id="wsave">Simpan rekening</button>
-    </div>
-    <div class="card"><h2>Riwayat penarikan</h2><div id="wlist"></div></div>
-  </section>
+    <section class="pane" id="p-pemasukan">
+      <details class="card" open><summary>Dukungan masuk</summary><div class="bd"><div id="list"></div></div></details>
+    </section>
 
-  <section class="pane" id="p-setelan">
-    <div class="card">
-      <h2>Profil</h2>
-      <label class="f" for="dn">Nama tampilan</label>
-      <input id="dn">
-      <label class="f" for="bio">Bio</label>
-      <textarea id="bio" rows="3" maxlength="200"></textarea>
-      <div class="ok" id="msg"></div>
-      <button id="save">Simpan profil</button>
-    </div>
-    <div class="card">
-      <h2>Overlay OBS</h2>
-      <p class="mut">Tempel link ini sebagai Browser Source di OBS. Jangan dibagikan ke siapa pun.</p>
-      <a id="ov" target="_blank"></a>
-      <div style="margin-top:12px"><button class="sm ghost" id="cp">Salin link</button></div>
-    </div>
-    <div class="card">
-      <h2>Ganti password</h2>
-      <label class="f" for="pold">Password lama</label>
-      <input id="pold" type="password" autocomplete="current-password">
-      <label class="f" for="pnew">Password baru</label>
-      <input id="pnew" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
-      <div id="perr" class="err"></div>
-      <button class="ghost" id="pgo">Ganti password</button>
-    </div>
-    <button class="ghost" id="out">Keluar</button>
-  </section>
-</div>
-<nav class="nav">
-  <button data-t="dukungan">Dukungan</button>
-  <button data-t="dompet">Dompet</button>
-  <button data-t="setelan">Setelan</button>
-</nav>
+    <section class="pane" id="p-penarikan">
+      <details class="card" open><summary>Tarik dana</summary><div class="bd">
+        <p class="mut" id="wnote"></p>
+        <label class="f" for="wamt">Jumlah penarikan</label>
+        <input id="wamt" type="text" inputmode="numeric" placeholder="Contoh: 100.000">
+        <div id="werr" class="err"></div>
+        <button class="cta" id="wgo">Tarik dana</button>
+      </div></details>
+      <details class="card" open><summary>Rekening penerima</summary><div class="bd">
+        <label class="f" for="wbank">Bank atau e-wallet</label>
+        <input id="wbank" placeholder="Contoh: BCA, DANA">
+        <label class="f" for="wacc">Nomor rekening atau HP</label>
+        <input id="wacc" inputmode="numeric">
+        <label class="f" for="whold">Nama pemilik</label>
+        <input id="whold">
+        <div id="rerr" class="err"></div>
+        <button class="ghost" id="wsave">Simpan rekening</button>
+      </div></details>
+      <details class="card" open><summary>Riwayat penarikan</summary><div class="bd"><div id="wlist"></div></div></details>
+    </section>
+
+    <section class="pane" id="p-overlay">
+      <details class="card" open><summary>Overlay OBS</summary><div class="bd">
+        <p class="mut">Tempel link ini sebagai Browser Source di OBS. Jangan dibagikan ke siapa pun.</p>
+        <a id="ov" target="_blank"></a>
+        <button class="cta" id="cp">Salin link</button>
+      </div></details>
+    </section>
+
+    <section class="pane" id="p-keamanan">
+      <details class="card" open><summary>Ganti password</summary><div class="bd">
+        <label class="f" for="pold">Password lama</label>
+        <input id="pold" type="password" autocomplete="current-password">
+        <label class="f" for="pnew">Password baru</label>
+        <input id="pnew" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+        <div id="perr" class="err"></div>
+        <button class="cta" id="pgo">Ganti password</button>
+      </div></details>
+      <button class="danger" id="out">Keluar</button>
+    </section>
+  </div>
+</main>
 <script>
 const $ = s => document.querySelector(s);
 const t = localStorage.token;
@@ -89,14 +101,15 @@ const digits = v => String(v).replace(/\D/g, '');
 const fmt = ts => new Date(ts).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 function el(tag, cls, txt) { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
 function msg(sel, ok, text) { $(sel).className = ok ? 'ok' : 'err'; $(sel).textContent = text; }
-function tab(n) {
+const valid = ['halaman', 'pemasukan', 'penarikan', 'overlay', 'keamanan'];
+function tab(n, jump) {
   document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + n));
-  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.t === n));
+  document.querySelectorAll('.mb button').forEach(b => b.classList.toggle('on', b.dataset.t === n));
   localStorage.tab = n;
-  scrollTo(0, 0);
+  if (jump && innerWidth < 820) $('.ct').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-document.querySelectorAll('.nav button').forEach(b => b.onclick = () => tab(b.dataset.t));
-tab(localStorage.tab || 'dukungan');
+document.querySelectorAll('.mb button').forEach(b => b.onclick = () => tab(b.dataset.t, true));
+tab(valid.includes(localStorage.tab) ? localStorage.tab : 'halaman');
 
 const lbl = { pending: 'Menunggu', paid: 'Sudah ditransfer', rejected: 'Ditolak' };
 async function load() {
@@ -107,8 +120,11 @@ async function load() {
   window._ov = location.origin + '/overlay/' + j.overlayKey;
   $('#link').textContent = window._url; $('#link').href = window._url;
   $('#ov').textContent = window._ov; $('#ov').href = window._ov;
+  $('#usr').href = window._url;
   $('#hi').textContent = j.user.displayName;
+  $('#ua').textContent = (j.user.displayName.trim()[0] || '?').toUpperCase();
   $('#total').textContent = rp(j.balance);
+  $('#fee').textContent = 'Potongan platform ' + j.feePct + '%';
   $('#wnote').textContent = 'Total dukungan ' + rp(j.gross) + ', potongan platform ' + j.feePct + '%, bersih ' + rp(j.earned) + '. Minimal tarik ' + rp(j.minWd) + '.';
   if (!window._f) {
     $('#dn').value = j.user.displayName;
@@ -146,6 +162,7 @@ function copy(text, btn) {
   navigator.clipboard.writeText(text).then(() => { btn.textContent = 'Tersalin'; setTimeout(() => btn.textContent = o, 1500); });
 }
 $('#cpl').onclick = () => copy(window._url, $('#cpl'));
+$('#opn').onclick = () => window.open(window._url, '_blank');
 $('#cp').onclick = () => copy(window._ov, $('#cp'));
 $('#wamt').oninput = () => { const d = digits($('#wamt').value); $('#wamt').value = d ? Number(d).toLocaleString('id-ID') : ''; };
 
@@ -153,6 +170,7 @@ $('#save').onclick = async () => {
   await fetch('/api/me', { method: 'PUT', headers: H, body: JSON.stringify({ displayName: $('#dn').value, bio: $('#bio').value }) });
   msg('#msg', true, 'Profil tersimpan');
   setTimeout(() => $('#msg').textContent = '', 2000);
+  load();
 };
 $('#wsave').onclick = async () => {
   const r = await fetch('/api/payout', { method: 'PUT', headers: H, body: JSON.stringify({ bank: $('#wbank').value, account: $('#wacc').value, holder: $('#whold').value }) });
