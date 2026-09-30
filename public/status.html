@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1620">
+<title>Status layanan - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
+</head>
+<body class="dk">
+<header class="hd">
+  <a class="logo" href="/">Dukung.in</a>
+  <a class="usr" id="nb" href="/login" style="padding:9px 18px">Masuk</a>
+</header>
+<main class="pg">
+  <div class="ban" id="ban">
+    <div><div class="sub" id="chk">Memeriksa...</div><div class="bal" style="font-size:24px" id="ovt">Memeriksa layanan</div></div>
+  </div>
+  <div id="cl"></div>
+  <p class="mut" id="up"></p>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+if (localStorage.token) { $('#nb').textContent = 'Dashboard'; $('#nb').href = '/dashboard'; }
+function dur(s) {
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+  return h >= 24 ? Math.floor(h / 24) + ' hari ' + (h % 24) + ' jam' : h + ' jam ' + m + ' menit';
+}
+async function load() {
+  try {
+    const r = await fetch('/api/status', { cache: 'no-store' });
+    const j = await r.json();
+    const bad = j.components.some(c => c.ok === false);
+    $('#ovt').textContent = bad ? 'Ada layanan yang mengalami gangguan' : 'Semua layanan berjalan normal';
+    $('#ban').style.background = bad ? '#ef4444' : '';
+    $('#ban').style.color = bad ? '#fff' : '';
+    $('#chk').textContent = 'Diperiksa ' + new Date(j.checkedAt).toLocaleTimeString('id-ID');
+    $('#up').textContent = 'Server berjalan terus selama ' + dur(j.uptime) + '.';
+    const box = $('#cl');
+    box.innerHTML = '';
+    j.components.forEach(c => {
+      const d = document.createElement('div');
+      d.className = 'card';
+      const row = document.createElement('div');
+      row.className = 'row';
+      const n = document.createElement('b');
+      n.textContent = c.name;
+      const p = document.createElement('span');
+      p.className = 'pill ' + (c.ok === true ? 'paid' : c.ok === false ? 'rejected' : '');
+      p.textContent = c.ok === true ? 'Operasional' : c.ok === false ? 'Gangguan' : 'Belum aktif';
+      row.append(n, p);
+      d.append(row);
+      box.append(d);
+    });
+  } catch (e) {
+    $('#ovt').textContent = 'Tidak dapat menghubungi server';
+    $('#ban').style.background = '#ef4444';
+    $('#ban').style.color = '#fff';
+  }
+}
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>

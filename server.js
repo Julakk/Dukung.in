@@ -44,7 +44,7 @@ app.use('/api/admin', limiter('admin', 30, 15 * 60000, true));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -437,6 +437,37 @@ app.get('/api/explore', (req, res) => {
 });
 app.get('/explore', (req, res) => res.sendFile(path.join(__dirname, 'public', 'explore.html')));
 app.get('/faq', (req, res) => res.sendFile(path.join(__dirname, 'public', 'faq.html')));
+
+let tpCache = { t: 0, ok: null };
+async function tripayOk() {
+  if (!TP_PK) return null;
+  if (Date.now() - tpCache.t < 60000) return tpCache.ok;
+  try {
+    const r = await fetch(TP_BASE + '/merchant/payment-channel', { headers: { Authorization: 'Bearer ' + TP_KEY }, signal: AbortSignal.timeout(4000) });
+    const j = await r.json();
+    tpCache = { t: Date.now(), ok: !!j.success };
+  } catch (e) { tpCache = { t: Date.now(), ok: false }; }
+  return tpCache.ok;
+}
+
+app.get('/api/status', async (req, res) => {
+  let store = true;
+  const df = path.join(__dirname, 'data.json');
+  try { if (fsx.existsSync(df)) fsx.accessSync(df, fsx.constants.R_OK | fsx.constants.W_OK); } catch (e) { store = false; }
+  const pay = await tripayOk();
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({
+    checkedAt: Date.now(),
+    uptime: Math.floor(process.uptime()),
+    components: [
+      { name: 'Situs dan API', ok: true },
+      { name: 'Penyimpanan data', ok: store },
+      { name: 'Pembayaran QRIS', ok: pay }
+    ]
+  });
+});
+app.get('/status', (req, res) => res.sendFile(path.join(__dirname, 'public', 'status.html')));
+app.get('/changelog', (req, res) => res.sendFile(path.join(__dirname, 'public', 'changelog.html')));
 
 app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 

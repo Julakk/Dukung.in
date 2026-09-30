@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1620">
+<title>Changelog - Dukung.in</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dash.css">
+</head>
+<body class="dk">
+<header class="hd">
+  <a class="logo" href="/">Dukung.in</a>
+  <a class="usr" id="nb" href="/login" style="padding:9px 18px">Masuk</a>
+</header>
+<main class="pg">
+  <div><h1>Changelog</h1><p class="mut">Catatan perubahan Dukung.in.</p></div>
+  <div>
+    <details class="card" open><summary>Versi 0.1, 30 September 2026</summary><div class="bd">
+      <p><b>Fitur kreator</b></p>
+      <ul>
+        <li>Akun kreator dengan halaman dukungan sendiri</li>
+        <li>Foto profil, kategori, dan tombol nominal cepat yang bisa diatur</li>
+        <li>Dashboard dengan menu Halaman, Pemasukan, Penarikan, Overlay OBS, dan Keamanan</li>
+        <li>Overlay OBS untuk notifikasi dukungan di stream</li>
+        <li>Halaman Temukan kreator dan FAQ</li>
+      </ul>
+      <p><b>Pembayaran dan saldo</b></p>
+      <ul>
+        <li>Pembayaran QRIS lewat Tripay</li>
+        <li>Saldo kreator dengan potongan platform 10%</li>
+        <li>Pengajuan penarikan ke bank atau e-wallet, diproses admin</li>
+      </ul>
+      <p><b>Keamanan</b></p>
+      <ul>
+        <li>Batas percobaan login dan pendaftaran</li>
+        <li>Sesi login otomatis kedaluwarsa</li>
+        <li>Ganti password dan reset password lewat admin</li>
+        <li>Backup data otomatis</li>
+      </ul>
+      <p><b>Tampilan</b></p>
+      <ul>
+        <li>Landing page baru dan tema gelap di semua halaman</li>
+        <li>Halaman Status layanan</li>
+      </ul>
+    </div></details>
+  </div>
+</main>
+<script>
+if (localStorage.token) { const n = document.getElementById('nb'); n.textContent = 'Dashboard'; n.href = '/dashboard'; }
+</script>
+</body>
+</html>
