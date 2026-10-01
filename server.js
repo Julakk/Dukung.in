@@ -55,7 +55,7 @@ app.use('/api/creator/:username/support', (req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog', 'banner'];
+const RESERVED = ['api', 'dashboard', 'login', 'admin', 'static', 'index', 'creator', 'overlay', 'reset', 'avatar', 'uploads', 'explore', 'faq', 'status', 'changelog', 'banner', 'terms', 'privacy'];
 const rid = () => crypto.randomBytes(8).toString('hex');
 
 function hash(pw, salt = crypto.randomBytes(16).toString('hex')) {
@@ -476,6 +476,8 @@ app.get('/api/explore', (req, res) => {
 });
 app.get('/explore', (req, res) => res.sendFile(path.join(__dirname, 'public', 'explore.html')));
 app.get('/faq', (req, res) => res.sendFile(path.join(__dirname, 'public', 'faq.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'public', 'terms.html')));
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'public', 'privacy.html')));
 
 let tpCache = { t: 0, ok: null };
 async function tripayOk() {
