@@ -96,8 +96,8 @@ app.post('/api/register', (req, res) => {
     return res.status(400).json({ error: 'Username 3-20 karakter: huruf kecil, angka, _' });
   if (RESERVED.includes(username) || data.users.find(u => u.username === username))
     return res.status(400).json({ error: 'Username tidak tersedia' });
-  if (password.length < 6)
-    return res.status(400).json({ error: 'Password minimal 6 karakter' });
+  if (password.length < 8)
+    return res.status(400).json({ error: 'Password minimal 8 karakter' });
   const user = { id: rid(), username, displayName: displayName || username, bio: '', password: hash(password), createdAt: Date.now() };
   data.users.push(user);
   res.json({ token: newSession(user.id) });
@@ -352,7 +352,7 @@ app.post('/api/password', auth, (req, res) => {
   const oldPw = String(req.body.old || '');
   const np = String(req.body.new || '');
   if (!verify(oldPw, req.user.password)) return res.status(400).json({ error: 'Password lama salah' });
-  if (np.length < 6) return res.status(400).json({ error: 'Password baru minimal 6 karakter' });
+  if (np.length < 8) return res.status(400).json({ error: 'Password baru minimal 8 karakter' });
   req.user.password = hash(np);
   for (const t of Object.keys(data.sessions)) if (data.sessions[t] === req.user.id && t !== req.token) delete data.sessions[t];
   save();
@@ -373,7 +373,7 @@ app.post('/api/reset', (req, res) => {
   const r = data.resets[token];
   if (!r || r.exp < Date.now()) return res.status(400).json({ error: 'Link tidak valid atau kedaluwarsa' });
   const np = String(req.body.password || '');
-  if (np.length < 6) return res.status(400).json({ error: 'Password minimal 6 karakter' });
+  if (np.length < 8) return res.status(400).json({ error: 'Password minimal 8 karakter' });
   const u = data.users.find(x => x.id === r.userId);
   if (!u) return res.status(400).json({ error: 'Akun tidak ditemukan' });
   u.password = hash(np);
@@ -427,6 +427,9 @@ setInterval(() => {
   const ex = data.sessionExp || {};
   for (const t of Object.keys(ex)) if (ex[t] < now) { delete data.sessions[t]; delete ex[t]; }
   for (const t of Object.keys(data.resets)) if (data.resets[t].exp < now) delete data.resets[t];
+  const before = data.donations.length;
+  data.donations = data.donations.filter(d => d.status === 'paid' || !d.createdAt || d.createdAt > now - 7 * 86400000);
+  if (data.donations.length !== before) console.log('Bersihkan donasi tak terbayar:', before - data.donations.length);
   save();
 }, 3600000).unref();
 
