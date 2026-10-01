@@ -4,3 +4,6 @@ data.json.tmp
 .env
 backups
 uploads
+*.log
+*.bak
+nohup.out

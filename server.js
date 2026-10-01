@@ -10,7 +10,7 @@ const path = require('path');
 const { data, save } = require('./db');
 
 const app = express();
-app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
+app.use(express.json({ limit: '200kb', verify: (req, res, buf) => { req.rawBody = buf; } }));
 app.disable('x-powered-by');
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -23,7 +23,7 @@ const hits = new Map();
 function limiter(name, max, windowMs, countGet) {
   return (req, res, next) => {
     if (!countGet && (req.method === 'GET' || req.method === 'HEAD')) return next();
-    const ip = req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
+    const ip = (process.env.TRUST_CF === '1' && req.headers['cf-connecting-ip']) || req.socket.remoteAddress;
     const k = name + ':' + ip;
     const now = Date.now();
     let h = hits.get(k);
@@ -220,7 +220,7 @@ app.post('/api/tripay/callback', (req, res) => {
   const d = data.donations.find(x => x.id === req.body.merchant_ref);
   if (!d) return res.json({ success: false });
   const st = String(req.body.status || '').toUpperCase();
-  if (st === 'PAID' && d.status !== 'paid') { d.status = 'paid'; d.paidAt = Date.now(); save(); }
+  if (st === 'PAID' && d.status !== 'paid') { d.status = 'paid'; d.paidAt = Date.now(); d.fee = feeOf(d); save(); }
   else if ((st === 'EXPIRED' || st === 'FAILED') && d.status === 'pending') { d.status = st.toLowerCase(); save(); }
   console.log('Callback', d.id, st);
   res.json({ success: true });
@@ -248,10 +248,10 @@ app.post('/api/creator/:username/support', (req, res) => {
 
 // SIMULASI pembayaran. Ganti dengan webhook gateway nanti.
 app.post('/api/donations/:id/pay', (req, res) => {
-  if (process.env.SIMULATE === '0' || process.env.TRIPAY_PRIVATE_KEY) return res.status(403).json({ error: 'Nonaktif' });
+  if (process.env.SIMULATE !== '1' || process.env.TRIPAY_PRIVATE_KEY) return res.status(403).json({ error: 'Nonaktif' });
   const d = data.donations.find(x => x.id === req.params.id);
   if (!d) return res.status(404).json({ error: 'Tidak ditemukan' });
-  if (d.status !== 'paid') { d.status = 'paid'; d.paidAt = Date.now(); save(); }
+  if (d.status !== 'paid') { d.status = 'paid'; d.paidAt = Date.now(); d.fee = feeOf(d); save(); }
   res.json({ ok: true });
 });
 
@@ -284,7 +284,7 @@ const feeOf = d => Math.round(d.amount * FEE_PCT / 100);
 function walletInfo(u) {
   const paid = data.donations.filter(d => d.creatorId === u.id && d.status === 'paid');
   const gross = paid.reduce((s, d) => s + d.amount, 0);
-  const fee = paid.reduce((s, d) => s + feeOf(d), 0);
+  const fee = paid.reduce((s, d) => s + (d.fee != null ? d.fee : feeOf(d)), 0);
   const ws = data.withdrawals.filter(w => w.userId === u.id);
   const reserved = ws.filter(w => w.status !== 'rejected').reduce((s, w) => s + w.amount, 0);
   return {
