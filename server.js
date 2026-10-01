@@ -400,6 +400,28 @@ function backup() {
 backup();
 setInterval(backup, 6 * 3600000).unref();
 
+const DC_HOOK = process.env.DISCORD_WEBHOOK_URL;
+const BK_PASS = process.env.BACKUP_PASS;
+async function remoteBackup() {
+  if (!DC_HOOK || !BK_PASS) return;
+  try {
+    const raw = fsx.readFileSync(path.join(__dirname, 'data.json'));
+    const salt = crypto.randomBytes(16);
+    const iv = crypto.randomBytes(12);
+    const c = crypto.createCipheriv('aes-256-gcm', crypto.scryptSync(BK_PASS, salt, 32), iv);
+    const enc = Buffer.concat([c.update(raw), c.final()]);
+    const out = Buffer.concat([salt, iv, c.getAuthTag(), enc]);
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fd = new FormData();
+    fd.append('payload_json', JSON.stringify({ content: 'Backup Dukung.in ' + stamp }));
+    fd.append('files[0]', new Blob([out]), 'dukung-' + stamp + '.enc');
+    const r = await fetch(DC_HOOK, { method: 'POST', body: fd, signal: AbortSignal.timeout(30000) });
+    if (!r.ok) console.log('Backup Discord gagal: HTTP ' + r.status);
+  } catch (e) { console.log('Backup Discord error:', e.message); }
+}
+setTimeout(remoteBackup, 30000).unref();
+setInterval(remoteBackup, 6 * 3600000).unref();
+
 setInterval(() => {
   const now = Date.now();
   const ex = data.sessionExp || {};
