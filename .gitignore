@@ -7,3 +7,5 @@ uploads
 *.log
 *.bak
 nohup.out
+data.restored.json
+*.enc
