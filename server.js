@@ -98,7 +98,9 @@ app.post('/api/register', (req, res) => {
     return res.status(400).json({ error: 'Username tidak tersedia' });
   if (password.length < 8)
     return res.status(400).json({ error: 'Password minimal 8 karakter' });
-  const user = { id: rid(), username, displayName: displayName || username, bio: '', password: hash(password), createdAt: Date.now() };
+  if (req.body.agree !== true)
+    return res.status(400).json({ error: 'Setujui Syarat dan Ketentuan serta Kebijakan Privasi dulu' });
+  const user = { id: rid(), username, displayName: displayName || username, bio: '', password: hash(password), createdAt: Date.now(), termsAt: Date.now(), termsVer: '2026-10-01' };
   data.users.push(user);
   res.json({ token: newSession(user.id) });
 });

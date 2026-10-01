@@ -24,6 +24,7 @@
     </div>
     <label class="f" for="p">Password</label>
     <input id="p" type="password" autocomplete="current-password" required>
+    <label id="tcw" style="display:none;font-size:13px;line-height:1.5;margin:10px 0"><input id="tc" type="checkbox" style="width:auto;margin-right:8px">Saya setuju dengan <a href="/terms" target="_blank">Syarat dan Ketentuan</a> dan <a href="/privacy" target="_blank">Kebijakan Privasi</a></label>
     <div class="err" id="err"></div>
     <button class="cta" id="btn" type="submit">Masuk</button>
   </form>
@@ -36,6 +37,7 @@ function setMode(m) {
   mode = m;
   document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
   $('#dnw').style.display = m === 'register' ? 'block' : 'none';
+  $('#tcw').style.display = m === 'register' ? 'block' : 'none';
   $('#btn').textContent = m === 'register' ? 'Buat akun' : 'Masuk';
   $('#p').autocomplete = m === 'register' ? 'new-password' : 'current-password';
   $('#err').textContent = '';
@@ -44,8 +46,9 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => setMode(
 if (location.search.includes('daftar')) setMode('register');
 $('#f').onsubmit = async e => {
   e.preventDefault();
+  if (mode === 'register' && !$('#tc').checked) { $('#err').textContent = 'Centang persetujuan Syarat dan Ketentuan dulu'; return; }
   $('#btn').disabled = true;
-  const body = { username: $('#u').value.trim(), password: $('#p').value, displayName: $('#dn').value.trim() };
+  const body = { username: $('#u').value.trim(), password: $('#p').value, displayName: $('#dn').value.trim(), agree: $('#tc').checked };
   const r = await fetch('/api/' + mode, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const j = await r.json();
   $('#btn').disabled = false;
