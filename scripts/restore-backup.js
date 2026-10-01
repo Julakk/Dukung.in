@@ -1,7 +1,7 @@
-// Pakai: BACKUP_PASS=sandi node scripts/restore-backup.js file.enc > data.json
+// Pakai: BACKUP_PASS=sandi node scripts/restore-backup.js file.enc > data.restored.json
 const fs = require('fs');
 const crypto = require('crypto');
-if (!process.argv[2] || !process.env.BACKUP_PASS) { console.error('Pakai: BACKUP_PASS=sandi node scripts/restore-backup.js file.enc > data.json'); process.exit(1); }
+if (!process.argv[2] || !process.env.BACKUP_PASS) { console.error('Pakai: BACKUP_PASS=sandi node scripts/restore-backup.js file.enc > data.restored.json'); process.exit(1); }
 const b = fs.readFileSync(process.argv[2]);
 const d = crypto.createDecipheriv('aes-256-gcm', crypto.scryptSync(process.env.BACKUP_PASS, b.subarray(0, 16), 32), b.subarray(16, 28));
 d.setAuthTag(b.subarray(28, 44));
