@@ -11,7 +11,14 @@ if (fs.existsSync(FILE)) {
   }
 }
 function save() {
-  fs.writeFileSync(FILE + '.tmp', JSON.stringify(data, null, 2));
-  fs.renameSync(FILE + '.tmp', FILE);
+  const tmp = FILE + '.tmp';
+  const fd = fs.openSync(tmp, 'w');
+  try {
+    fs.writeSync(fd, JSON.stringify(data, null, 2));
+    fs.fsyncSync(fd);
+  } finally {
+    fs.closeSync(fd);
+  }
+  fs.renameSync(tmp, FILE);
 }
 module.exports = { data, save };
